@@ -37,13 +37,15 @@
 }
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;overflow-x:hidden;max-width:100vw;}
 body{
   background:var(--white);
   color:var(--black);
   font-family:'DM Sans',sans-serif;
   font-weight:300;
   overflow-x:hidden;
+  max-width:100vw;
+  width:100%;
   -webkit-font-smoothing:antialiased;
 }
 
@@ -292,6 +294,8 @@ body{
   grid-template-columns:var(--sidebar) 1fr;
   min-height:calc(100vh - var(--nav-h));
   align-items:start;
+  max-width:100vw;
+  overflow-x:hidden;
 }
 
 /* ══════════════════════════════════════════════════════
@@ -374,6 +378,9 @@ body{
   background:var(--white);
   min-height:calc(100vh - var(--nav-h));
   position:relative;
+  overflow-x:hidden;
+  width:100%;
+  max-width:100%;
 }
 
 /* ══════════════════════════════════════════════════════
@@ -526,6 +533,8 @@ body{
   border-bottom:2px solid var(--black);
   overflow:hidden;
   position:relative;
+  width:100%;
+  max-width:100%;
 }
 .masonry-wall:empty{display:none;}
 .mw-cell{
@@ -909,12 +918,12 @@ body{
   touch-action:manipulation;
 }
 .dish-item::before{
-  content:'';position:absolute;left:-52px;top:0;bottom:0;width:0;
+  content:'';position:absolute;left:0;top:0;bottom:0;width:0;
   background:var(--faint);
   transition:width .2s ease;
   pointer-events:none;
 }
-.dish-item:hover::before{width:calc(100% + 52px);}
+.dish-item:hover::before{width:100%;}
 
 .dish-grid>.dish-item:nth-child(odd) {padding-right:26px;border-right:1px solid var(--border);}
 .dish-grid>.dish-item:nth-child(even){padding-left:26px;}
@@ -1108,7 +1117,7 @@ body{
 ══════════════════════════════════════════════════════ */
 @media(max-width:900px){
   :root{--nav-h:60px;}
-  .app-shell{grid-template-columns:1fr;}
+  .app-shell{grid-template-columns:1fr;width:100%;max-width:100vw;}
   .side-nav{display:none;}
   .mobile-cat-bar{display:flex;}
   .hero{grid-template-columns:1fr;}
@@ -1119,7 +1128,7 @@ body{
   .btn-back-site{font-size:.56rem;padding:6px 12px;}
   .sec-head{padding:28px 20px 22px;}
   .sec-head-wm{display:none;}
-  .dish-grid{padding:0 16px;}
+  .dish-grid{padding:0 16px;width:100%;max-width:100%;}
   .dish-grid.two-col,.dish-grid{grid-template-columns:1fr;}
   .dish-grid>.dish-item:nth-child(odd){padding-right:0;border-right:none;}
   .dish-grid>.dish-item:nth-child(even){padding-left:0;}
@@ -1153,8 +1162,15 @@ body{
   .mob-btn{font-size:.82rem;padding:14px 14px;}
   .sec-title{font-size:clamp(1.6rem,6vw,2.2rem);}
   .search-results{grid-template-columns:1fr;}
-  .dish-grid{padding:0 14px;}
+  .dish-grid{padding:0 14px;width:100%;max-width:100%;}
   .subcat{margin:22px 14px 0;}
+  .float-gallery{margin:12px 14px;height:90px;}
+  .sec-head{padding:22px 14px 18px;}
+  .dish-item{gap:10px;}
+  .dish-item::before{left:-14px;}
+  .polaroid-strip{padding:16px 12px;gap:8px;flex-wrap:nowrap;overflow-x:auto;}
+  .polaroid img{width:80px;height:80px;}
+  .polaroid{padding:6px 6px 26px;}
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1459,6 +1475,56 @@ body{
   .vs-images{height:180px;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr;}
   .vs-img-cell.vsi-large{grid-row:span 1;}
 }
+/* ══════════════════════════════════════════════════════
+   FOOTER NOTICE LINES  (highlighted last 3 lines)
+══════════════════════════════════════════════════════ */
+.footer-notices{
+  width:100%;
+  border-top:1px solid rgba(255,255,255,.1);
+  margin-top:24px;
+  padding-top:20px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.footer-notice-line{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:'Cinzel',serif;
+  font-size:.62rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.55);
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  padding:10px 18px;
+  border-radius:2px;
+}
+.footer-notice-line svg{
+  flex-shrink:0;
+  opacity:.6;
+  color:var(--gold);
+  stroke:var(--gold);
+}
+.footer-notice-thankyou{
+  background:rgba(201,169,110,.08);
+  border-color:rgba(201,169,110,.28);
+  color:var(--gold);
+  font-weight:600;
+  letter-spacing:.3em;
+}
+.footer-notice-thankyou svg{opacity:1;}
+
+@media(max-width:600px){
+  .footer-notices{margin-top:20px;padding-top:16px;gap:8px;}
+  .footer-notice-line{font-size:.54rem;padding:9px 14px;letter-spacing:.16em;}
+}
+
+/* ══════════════════════════════════════════════════════
+   MENU SECTION OVERFLOW FIX
+══════════════════════════════════════════════════════ */
+.menu-section{overflow-x:hidden;width:100%;max-width:100%;}
 </style>
 </head>
 <body>
@@ -1520,7 +1586,7 @@ body{
          ║  this HTML file and update the src below.       ║
          ╚══════════════════════════════════════════════════╝ -->
     <div class="hero-bg-slide hbs-active" id="hbs-0">
-      <img src="hero-bg-1.jpg" alt="hero background 1">
+      <img src="hero-bg-1.jpg" alt=" background 1">
     </div>
     <div class="hero-bg-slide" id="hbs-1">
       <img src="hero-bg-2.jpg" alt="hero background 2">
@@ -2401,14 +2467,8 @@ body{
       <div class="polaroid-strip" id="pol-desserts"></div>
 
       <div class="dish-grid">
-        <div class="dish-item"><div class="dish-left"><div class="dish-name">Brownie with Ice Cream</div><div class="dish-sub">Warm fudge brownie, vanilla bean ice cream, chocolate drizzle</div><div class="dish-tags"><span class="tag tag-pop">Popular</span></div></div><div class="dish-price"><span>₹</span>189</div></div>
-        <div class="dish-item"><div class="dish-left"><div class="dish-name">Gulab Rose Cheesecake</div><div class="dish-sub">Gulab jamun cheesecake on buttery biscuit, rose syrup</div><div class="dish-tags"><span class="tag tag-chef">Chef Special</span></div></div><div class="dish-price"><span>₹</span>199</div></div>
-        <div class="dish-item"><div class="dish-left"><div class="dish-name">Gajar Halwa</div><div class="dish-sub">Slow-cooked carrots, khoya, saffron, dry fruits</div><div class="dish-tags"><span class="tag tag-pop">Popular</span></div></div><div class="dish-price"><span>₹</span>149</div></div>
-        <div class="dish-item"><div class="dish-left"><div class="dish-name">Chocolate Lava Cake</div><div class="dish-sub">Molten dark chocolate centre, vanilla ice cream</div><div class="dish-tags"><span class="tag tag-new">New</span></div></div><div class="dish-price"><span>₹</span>229</div></div>
-        <div class="dish-item"><div class="dish-left"><div class="dish-name">Gulab Jamun</div><div class="dish-sub">Classic, served warm with ice cream</div></div><div class="dish-price"><span>₹</span>99</div></div>
-        <div class="dish-item"><div class="dish-left"><div class="dish-name">Rabri Phirni</div><div class="dish-sub">Rice pudding, saffron cream, pistachio</div></div><div class="dish-price"><span>₹</span>149</div></div>
-        <div class="dish-item"><div class="dish-left"><div class="dish-name">Ice Cream Scoops</div><div class="dish-sub">Vanilla / Chocolate / American Nuts — 1 scoop</div></div><div class="dish-price"><span>₹</span>79</div></div>
-        <div class="dish-item"><div class="dish-left"><div class="dish-name">Waffles Supreme</div><div class="dish-sub">Belgian waffle, Nutella, ice cream, fresh fruits</div><div class="dish-tags"><span class="tag tag-new">New</span><span class="tag tag-pop">Popular</span></div></div><div class="dish-price"><span>₹</span>209</div></div>
+        <div class="dish-item"><div class="dish-left"><div class="dish-name">Brownie with Ice Cream</div><div class="dish-sub">Warm fudge brownie, vanilla bean ice cream</div><div class="dish-tags"><span class="tag tag-pop">Popular</span></div></div><div class="dish-price"><span>₹</span>189</div></div>
+        <div class="dish-item"><div class="dish-left"><div class="dish-name">Ice Cream Scoop</div><div class="dish-sub">Vanilla · Coconut · American Nuts — 1 scoop</div></div><div class="dish-price"><span>₹</span>79</div></div>
       </div>
       <div class="sec-pad"></div>
     </div>
@@ -2426,6 +2486,20 @@ body{
         </a>
         <div class="footer-copy">All prices excl. GST · Pure Veg</div>
       </div>
+      <div class="footer-notices">
+        <div class="footer-notice-line">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Prices are exclusive of GST
+        </div>
+        <div class="footer-notice-line">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Preparation Time: 20–25 Minutes
+        </div>
+        <div class="footer-notice-line footer-notice-thankyou">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Thank You for Dining with Sketchy Cuisine
+        </div>
+      </div>
     </div>
 
   </div><!-- /content-pane -->
@@ -2434,210 +2508,261 @@ body{
 
 <script>
 /* ══════════════════════════════════════════════════════
-   📁 LOCAL IMAGES FOLDER GUIDE
+   📁 HOW TO ADD YOUR IMAGES — SIMPLE GUIDE
    ─────────────────────────────────────────────────────
-   Create an "images/" folder next to this HTML file.
-   Place your restaurant photos with these exact names:
+   Step 1: Create this folder structure next to the HTML:
 
-   HERO / SHOWCASE (high-res 1600px wide recommended):
-   ├── slider-hero-1.jpg          — Opening cinematic slide
-   ├── slider-pizza-fire.jpg      — Pizza/fire slide
-   ├── slider-indian-mains.jpg    — Indian mains slide
-   ├── slider-desserts.jpg        — Desserts slide
-   ├── slider-asian.jpg           — Asian/sushi slide
-   └── showcase-hero-bg.jpg       — "Crafted with Intention" banner bg
+   images/
+   ├── hero/          ← Hero background + slider images
+   ├── beverages/     ← Drinks photos
+   ├── appetizers/    ← Starters photos
+   ├── pasta/         ← Pasta photos
+   ├── pizza/         ← Pizza photos
+   ├── asian/         ← Asian & noodle photos
+   ├── sushi/         ← Sushi photos
+   ├── sizzlers/      ← Sizzler photos
+   ├── tandoor/       ← Tandoor / clay oven photos
+   ├── mains/         ← Indian mains photos
+   ├── rice/          ← Rice & biryani photos
+   ├── breads/        ← Breads photos
+   ├── soups/         ← Soups photos
+   ├── salads/        ← Salads photos
+   ├── desserts/      ← Desserts photos
+   └── global/        ← Ambience / restaurant / detail shots
+                         (these appear across ALL sections)
 
-   BEVERAGES (800px):
-   ├── bev-coffee-latte.jpg       bev-cold-brew.jpg
-   ├── bev-mocktail-1.jpg         bev-smoothie.jpg
-   ├── bev-shake-nutella.jpg      bev-cappuccino.jpg
-   └── bev-iced-coffee.jpg        bev-fresh-juice.jpg
+   Step 2: Name every image like:
+           image-1.jpg, image-2.jpg, image-3.jpg ...
 
-   APPETIZERS: app-nachos, app-paneer-tikka, app-fries,
-               app-bruschetta, app-spring-rolls, app-loaded-fries,
-               app-cheese-balls, app-corn-chat
+   Step 3: To add more images later — just add the filename
+           to the matching array below and drop the file in.
 
-   PASTA: pasta-arrabiata, pasta-alfredo, pasta-pink-sauce,
-          pasta-pesto, pasta-baked, pasta-mac-cheese
-
-   PIZZA: pizza-margherita, pizza-farm-fresh, pizza-bbq,
-          pizza-pesto-grilled, pizza-makhani, pizza-mexicana, pizza-calzone
-
-   ASIAN: asian-noodles, asian-fried-rice, asian-dimsums,
-          asian-ramen, asian-wok-toss, asian-thai-curry
-
-   SUSHI: sushi-roll-1, sushi-nigiri, sushi-dragon-roll,
-          sushi-maki, sushi-platter
-
-   SIZZLERS: sizzler-paneer, sizzler-veg-platter, sizzler-mushroom,
-             sizzler-tofu, sizzler-cottage
-
-   TANDOOR: tandoor-paneer-tikka, tandoor-seekh, tandoor-malai-tikka,
-            tandoor-kebab, tandoor-naan-oven, tandoor-clay-pot
-
-   MAINS: mains-dal-makhani, mains-paneer-butter-masala,
-          mains-shahi-korma, mains-kadai-veg, mains-palak-paneer,
-          mains-malai-kofta, mains-yellow-dal
-
-   RICE: rice-veg-biryani, rice-paneer-biryani, rice-fried,
-         rice-tahiri, rice-pulao
-
-   BREADS: bread-butter-naan, bread-garlic-naan, bread-kulcha,
-           bread-paratha, bread-tandoori-roti
-
-   SOUPS: soup-tomato, soup-manchow, soup-sweet-corn, soup-mushroom
-
-   SALADS: salad-greek, salad-caesar, salad-kachumber, salad-cottage
-
-   DESSERTS: dessert-brownie, dessert-gulab-cheesecake, dessert-lava-cake,
-             dessert-waffles, dessert-gulab-jamun, dessert-ice-cream,
-             dessert-gajar-halwa
-
-   GLOBAL (restaurant/ambience/detail shots — appear everywhere):
-   global-food-spread, global-plating-1/2/3, global-kitchen-1,
-   global-restaurant-ambience, global-chef-detail,
-   global-table-setting, global-food-hero, global-ingredients
-
-   NOTE: All files use .jpg extension. Fallback placeholders render
-   automatically if any image is missing — no broken images shown.
+   NOTE: Missing images show a styled placeholder automatically.
+         No broken layout, ever.
 ══════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════
-   LOCAL IMAGE REGISTRY
-   ─────────────────────────────────────────────────────
-   All images reference your local project folder.
-   Place your photos in an "images/" subfolder alongside
-   this HTML file. Suggested naming convention shown below.
-   The system auto-assigns them across all visual sections.
-
-   Fallback: if an image fails to load, a premium styled
-   placeholder renders automatically (see onerror handler).
+   IMAGE REGISTRY
+   Edit the arrays below to match your image files.
+   All paths are relative to this HTML file.
 ══════════════════════════════════════════════════════ */
 
+// ─── HERO BACKGROUND (cinematic reel + slider) ───────
+// ADD YOUR HERO / SLIDER IMAGES HERE
+// Place in: images/hero/
+const heroImages = [
+  'images/hero/image-1.jpg',
+  'images/hero/image-2.jpg',
+  'images/hero/image-3.jpg',
+  'images/hero/image-4.jpg',
+  'images/hero/image-5.jpg',
+];
+
+// ─── BEVERAGES ────────────────────────────────────────
+// ADD YOUR BEVERAGE IMAGES HERE
+// Place in: images/beverages/
+const beveragesImages = [
+  'images/beverages/image-1.jpg',
+  'images/beverages/image-2.jpg',
+  'images/beverages/image-3.jpg',
+  'images/beverages/image-4.jpg',
+  'images/beverages/image-5.jpg',
+  'images/beverages/image-6.jpg',
+  'images/beverages/image-7.jpg',
+  'images/beverages/image-8.jpg',
+];
+
+// ─── APPETIZERS ───────────────────────────────────────
+// ADD YOUR APPETIZER IMAGES HERE
+// Place in: images/appetizers/
+const appetizersImages = [
+  'images/appetizers/image-1.jpg',
+  'images/appetizers/image-2.jpg',
+  'images/appetizers/image-3.jpg',
+  'images/appetizers/image-4.jpg',
+  'images/appetizers/image-5.jpg',
+  'images/appetizers/image-6.jpg',
+  'images/appetizers/image-7.jpg',
+  'images/appetizers/image-8.jpg',
+];
+
+// ─── PASTA ────────────────────────────────────────────
+// ADD YOUR PASTA IMAGES HERE
+// Place in: images/pasta/
+const pastaImages = [
+  'images/pasta/image-1.jpg',
+  'images/pasta/image-2.jpg',
+  'images/pasta/image-3.jpg',
+  'images/pasta/image-4.jpg',
+  'images/pasta/image-5.jpg',
+  'images/pasta/image-6.jpg',
+];
+
+// ─── PIZZA ────────────────────────────────────────────
+// ADD YOUR PIZZA IMAGES HERE
+// Place in: images/pizza/
+const pizzaImages = [
+  'images/pizza/image-1.jpg',
+  'images/pizza/image-2.jpg',
+  'images/pizza/image-3.jpg',
+  'images/pizza/image-4.jpg',
+  'images/pizza/image-5.jpg',
+  'images/pizza/image-6.jpg',
+  'images/pizza/image-7.jpg',
+];
+
+// ─── ASIAN ────────────────────────────────────────────
+// ADD YOUR ASIAN / NOODLE IMAGES HERE
+// Place in: images/asian/
+const asianImages = [
+  'images/asian/image-1.jpg',
+  'images/asian/image-2.jpg',
+  'images/asian/image-3.jpg',
+  'images/asian/image-4.jpg',
+  'images/asian/image-5.jpg',
+  'images/asian/image-6.jpg',
+];
+
+// ─── SUSHI ────────────────────────────────────────────
+// ADD YOUR SUSHI IMAGES HERE
+// Place in: images/sushi/
+const sushiImages = [
+  'images/sushi/image-1.jpg',
+  'images/sushi/image-2.jpg',
+  'images/sushi/image-3.jpg',
+  'images/sushi/image-4.jpg',
+  'images/sushi/image-5.jpg',
+];
+
+// ─── SIZZLERS ─────────────────────────────────────────
+// ADD YOUR SIZZLER IMAGES HERE
+// Place in: images/sizzlers/
+const sizzlersImages = [
+  'images/sizzlers/image-1.jpg',
+  'images/sizzlers/image-2.jpg',
+  'images/sizzlers/image-3.jpg',
+  'images/sizzlers/image-4.jpg',
+  'images/sizzlers/image-5.jpg',
+];
+
+// ─── TANDOOR ──────────────────────────────────────────
+// ADD YOUR TANDOOR IMAGES HERE
+// Place in: images/tandoor/
+const tandoorImages = [
+  'images/tandoor/image-1.jpg',
+  'images/tandoor/image-2.jpg',
+  'images/tandoor/image-3.jpg',
+  'images/tandoor/image-4.jpg',
+  'images/tandoor/image-5.jpg',
+  'images/tandoor/image-6.jpg',
+];
+
+// ─── INDIAN MAINS ─────────────────────────────────────
+// ADD YOUR MAINS IMAGES HERE
+// Place in: images/mains/
+const mainsImages = [
+  'images/mains/image-1.jpg',
+  'images/mains/image-2.jpg',
+  'images/mains/image-3.jpg',
+  'images/mains/image-4.jpg',
+  'images/mains/image-5.jpg',
+  'images/mains/image-6.jpg',
+  'images/mains/image-7.jpg',
+];
+
+// ─── RICE & BIRYANI ───────────────────────────────────
+// ADD YOUR RICE IMAGES HERE
+// Place in: images/rice/
+const riceImages = [
+  'images/rice/image-1.jpg',
+  'images/rice/image-2.jpg',
+  'images/rice/image-3.jpg',
+  'images/rice/image-4.jpg',
+  'images/rice/image-5.jpg',
+];
+
+// ─── BREADS ───────────────────────────────────────────
+// ADD YOUR BREAD IMAGES HERE
+// Place in: images/breads/
+const breadsImages = [
+  'images/breads/image-1.jpg',
+  'images/breads/image-2.jpg',
+  'images/breads/image-3.jpg',
+  'images/breads/image-4.jpg',
+  'images/breads/image-5.jpg',
+];
+
+// ─── SOUPS ────────────────────────────────────────────
+// ADD YOUR SOUP IMAGES HERE
+// Place in: images/soups/
+const soupsImages = [
+  'images/soups/image-1.jpg',
+  'images/soups/image-2.jpg',
+  'images/soups/image-3.jpg',
+  'images/soups/image-4.jpg',
+];
+
+// ─── SALADS ───────────────────────────────────────────
+// ADD YOUR SALAD IMAGES HERE
+// Place in: images/salads/
+const saladsImages = [
+  'images/salads/image-1.jpg',
+  'images/salads/image-2.jpg',
+  'images/salads/image-3.jpg',
+  'images/salads/image-4.jpg',
+];
+
+// ─── DESSERTS ─────────────────────────────────────────
+// ADD YOUR DESSERT IMAGES HERE
+// Place in: images/desserts/
+const dessertsImages = [
+  'images/desserts/image-1.jpg',
+  'images/desserts/image-2.jpg',
+  'images/desserts/image-3.jpg',
+  'images/desserts/image-4.jpg',
+  'images/desserts/image-5.jpg',
+  'images/desserts/image-6.jpg',
+  'images/desserts/image-7.jpg',
+];
+
+// ─── GLOBAL / AMBIENCE ────────────────────────────────
+// ADD YOUR RESTAURANT / AMBIENCE / DETAIL IMAGES HERE
+// These appear as filler across ALL sections.
+// Place in: images/global/
+const globalImages = [
+  'images/global/image-1.jpg',
+  'images/global/image-2.jpg',
+  'images/global/image-3.jpg',
+  'images/global/image-4.jpg',
+  'images/global/image-5.jpg',
+  'images/global/image-6.jpg',
+  'images/global/image-7.jpg',
+  'images/global/image-8.jpg',
+  'images/global/image-9.jpg',
+  'images/global/image-10.jpg',
+];
+
+/* ══════════════════════════════════════════════════════
+   INTERNAL LOOKUP MAP — do not edit this section
+   Maps category IDs used by the gallery functions
+   to the image arrays you defined above.
+══════════════════════════════════════════════════════ */
 const IMAGES = {
-  beverages: [
-    'images/bev-coffee-latte.jpg',
-    'images/bev-cold-brew.jpg',
-    'images/bev-mocktail-1.jpg',
-    'images/bev-smoothie.jpg',
-    'images/bev-shake-nutella.jpg',
-    'images/bev-cappuccino.jpg',
-    'images/bev-iced-coffee.jpg',
-    'images/bev-fresh-juice.jpg',
-  ],
-  appetizers: [
-    'images/app-nachos.jpg',
-    'images/app-paneer-tikka.jpg',
-    'images/app-fries.jpg',
-    'images/app-bruschetta.jpg',
-    'images/app-spring-rolls.jpg',
-    'images/app-loaded-fries.jpg',
-    'images/app-cheese-balls.jpg',
-    'images/app-corn-chat.jpg',
-  ],
-  pasta: [
-    'images/pasta-arrabiata.jpg',
-    'images/pasta-alfredo.jpg',
-    'images/pasta-pink-sauce.jpg',
-    'images/pasta-pesto.jpg',
-    'images/pasta-baked.jpg',
-    'images/pasta-mac-cheese.jpg',
-  ],
-  pizza: [
-    'images/pizza-margherita.jpg',
-    'images/pizza-farm-fresh.jpg',
-    'images/pizza-bbq.jpg',
-    'images/pizza-pesto-grilled.jpg',
-    'images/pizza-makhani.jpg',
-    'images/pizza-mexicana.jpg',
-    'images/pizza-calzone.jpg',
-  ],
-  asian: [
-    'images/asian-noodles.jpg',
-    'images/asian-fried-rice.jpg',
-    'images/asian-dimsums.jpg',
-    'images/asian-ramen.jpg',
-    'images/asian-wok-toss.jpg',
-    'images/asian-thai-curry.jpg',
-  ],
-  sushi: [
-    'images/sushi-roll-1.jpg',
-    'images/sushi-nigiri.jpg',
-    'images/sushi-dragon-roll.jpg',
-    'images/sushi-maki.jpg',
-    'images/sushi-platter.jpg',
-  ],
-  sizzlers: [
-    'images/sizzler-paneer.jpg',
-    'images/sizzler-veg-platter.jpg',
-    'images/sizzler-mushroom.jpg',
-    'images/sizzler-tofu.jpg',
-    'images/sizzler-cottage.jpg',
-  ],
-  tandoor: [
-    'images/tandoor-paneer-tikka.jpg',
-    'images/tandoor-seekh.jpg',
-    'images/tandoor-malai-tikka.jpg',
-    'images/tandoor-kebab.jpg',
-    'images/tandoor-naan-oven.jpg',
-    'images/tandoor-clay-pot.jpg',
-  ],
-  mains: [
-    'images/mains-dal-makhani.jpg',
-    'images/mains-paneer-butter-masala.jpg',
-    'images/mains-shahi-korma.jpg',
-    'images/mains-kadai-veg.jpg',
-    'images/mains-palak-paneer.jpg',
-    'images/mains-malai-kofta.jpg',
-    'images/mains-yellow-dal.jpg',
-  ],
-  rice: [
-    'images/rice-veg-biryani.jpg',
-    'images/rice-paneer-biryani.jpg',
-    'images/rice-fried.jpg',
-    'images/rice-tahiri.jpg',
-    'images/rice-pulao.jpg',
-  ],
-  breads: [
-    'images/bread-butter-naan.jpg',
-    'images/bread-garlic-naan.jpg',
-    'images/bread-kulcha.jpg',
-    'images/bread-paratha.jpg',
-    'images/bread-tandoori-roti.jpg',
-  ],
-  soups: [
-    'images/soup-tomato.jpg',
-    'images/soup-manchow.jpg',
-    'images/soup-sweet-corn.jpg',
-    'images/soup-mushroom.jpg',
-  ],
-  salads: [
-    'images/salad-greek.jpg',
-    'images/salad-caesar.jpg',
-    'images/salad-kachumber.jpg',
-    'images/salad-cottage.jpg',
-  ],
-  desserts: [
-    'images/dessert-brownie.jpg',
-    'images/dessert-gulab-cheesecake.jpg',
-    'images/dessert-lava-cake.jpg',
-    'images/dessert-waffles.jpg',
-    'images/dessert-gulab-jamun.jpg',
-    'images/dessert-ice-cream.jpg',
-    'images/dessert-gajar-halwa.jpg',
-  ],
-  global: [
-    'images/global-food-spread.jpg',
-    'images/global-plating-1.jpg',
-    'images/global-plating-2.jpg',
-    'images/global-kitchen-1.jpg',
-    'images/global-restaurant-ambience.jpg',
-    'images/global-chef-detail.jpg',
-    'images/global-table-setting.jpg',
-    'images/global-food-hero.jpg',
-    'images/global-ingredients.jpg',
-    'images/global-plating-3.jpg',
-  ]
+  beverages:  beveragesImages,
+  appetizers: appetizersImages,
+  pasta:      pastaImages,
+  pizza:      pizzaImages,
+  asian:      asianImages,
+  sushi:      sushiImages,
+  sizzlers:   sizzlersImages,
+  tandoor:    tandoorImages,
+  mains:      mainsImages,
+  rice:       riceImages,
+  breads:     breadsImages,
+  soups:      soupsImages,
+  salads:     saladsImages,
+  desserts:   dessertsImages,
+  global:     globalImages,
 };
 
 /* ── Utility: shuffle array ── */
@@ -2848,12 +2973,16 @@ function buildShowcaseBanner(catId) {
 /* ══════════════════════════════════════════════════════
    CINEMATIC SLIDER — populate slides
 ══════════════════════════════════════════════════════ */
+// ─── CINEMATIC SLIDER IMAGES ──────────────────────────
+// These are the 5 full-screen slides in the hero slider.
+// ADD YOUR SLIDER IMAGES HERE — Place in: images/hero/
+// You can use the same files as heroImages above, or different ones.
 const SLIDER_IMAGES = [
-  { src: 'images/slider-hero-1.jpg', eyebrow: 'The Sketch-Y Cuisine — Ajmer', heading: 'Where <em>Flavour</em><br>Meets Art', sub: 'Every plate a canvas. Every bite, a story.' },
-  { src: 'images/slider-pizza-fire.jpg', eyebrow: 'Wood-Fired · Artisan', heading: 'Crafted with<br><em>Fire & Soul</em>', sub: 'Slow-proofed dough, hand-stretched perfection.' },
-  { src: 'images/slider-indian-mains.jpg', eyebrow: 'Indian Mains · Heritage', heading: '<em>Royal</em><br>Indian Table', sub: 'Generations of spice wisdom in every ladle.' },
-  { src: 'images/slider-desserts.jpg', eyebrow: 'Sweet Endings · Handcrafted', heading: 'Sweet<br><em>Sketches</em>', sub: 'From gulab rose cheesecake to molten lava.' },
-  { src: 'images/slider-asian.jpg', eyebrow: 'Pan Asian · Japanese', heading: 'East Meets<br><em>Artistry</em>', sub: 'Wok heat, sushi precision, ramen soul.' }
+  { src: heroImages[0] || 'images/hero/image-1.jpg', eyebrow: 'The Sketch-Y Cuisine — Ajmer', heading: 'Where <em>Flavour</em><br>Meets Art', sub: 'Every plate a canvas. Every bite, a story.' },
+  { src: heroImages[1] || 'images/hero/image-2.jpg', eyebrow: 'Wood-Fired · Artisan', heading: 'Crafted with<br><em>Fire & Soul</em>', sub: 'Slow-proofed dough, hand-stretched perfection.' },
+  { src: heroImages[2] || 'images/hero/image-3.jpg', eyebrow: 'Indian Mains · Heritage', heading: '<em>Royal</em><br>Indian Table', sub: 'Generations of spice wisdom in every ladle.' },
+  { src: heroImages[3] || 'images/hero/image-4.jpg', eyebrow: 'Sweet Endings · Handcrafted', heading: 'Sweet<br><em>Sketches</em>', sub: 'From gulab rose cheesecake to molten lava.' },
+  { src: heroImages[4] || 'images/hero/image-5.jpg', eyebrow: 'Pan Asian · Japanese', heading: 'East Meets<br><em>Artistry</em>', sub: 'Wok heat, sushi precision, ramen soul.' }
 ];
 
 function buildCinematicSlider() {
@@ -2913,8 +3042,8 @@ function buildCinematicSlider() {
 buildCinematicSlider();
 
 /* ══════════════════════════════════════════════════════
-   HERO BG REEL — cycles through .hero-bg-slide divs
-   Images are set directly in HTML (hero-bg-1.jpg etc.)
+   HERO BG REEL — uses heroImages array (images/hero/)
+   Images cycle with Ken Burns effect behind hero section
 ══════════════════════════════════════════════════════ */
 function buildHeroBgReel() {
   const slides = Array.from(document.querySelectorAll('#hero-bg-reel .hero-bg-slide'));
