@@ -1579,28 +1579,8 @@ body{
 <!-- HERO -->
 <div class="hero" style="margin-top:var(--nav-h);">
   <!-- Full-width dynamic background behind the entire hero row -->
-  <div class="hero-bg-reel" id="hero-bg-reel">
-    <!-- ╔══════════════════════════════════════════════════╗
-         ║  HERO BACKGROUND IMAGES — replace src paths     ║
-         ║  Put your image files in the same folder as     ║
-         ║  this HTML file and update the src below.       ║
-         ╚══════════════════════════════════════════════════╝ -->
-    <div class="hero-bg-slide hbs-active" id="hbs-0">
-      <img src="hero-bg-1.jpg" alt=" background 1">
-    </div>
-    <div class="hero-bg-slide" id="hbs-1">
-      <img src="hero-bg-2.jpg" alt="hero background 2">
-    </div>
-    <div class="hero-bg-slide" id="hbs-2">
-      <img src="hero-bg-3.jpg" alt="hero background 3">
-    </div>
-    <div class="hero-bg-slide" id="hbs-3">
-      <img src="hero-bg-4.jpg" alt="hero background 4">
-    </div>
-    <div class="hero-bg-slide" id="hbs-4">
-      <img src="hero-bg-5.jpg" alt="hero background 5">
-    </div>
-  </div>
+  <!-- Slides are injected here automatically from heroImages[] in JS -->
+  <div class="hero-bg-reel" id="hero-bg-reel"></div>
 
   <div class="hero-dark" id="hero-dark">
     <div class="hero-wm">MENU</div>
@@ -2510,46 +2490,62 @@ body{
 /* ══════════════════════════════════════════════════════
    📁 HOW TO ADD YOUR IMAGES — SIMPLE GUIDE
    ─────────────────────────────────────────────────────
-   Step 1: Create this folder structure next to the HTML:
+   You have a mixed collection? Perfect — use ONE folder:
 
    images/
-   ├── hero/          ← Hero background + slider images
-   ├── beverages/     ← Drinks photos
-   ├── appetizers/    ← Starters photos
-   ├── pasta/         ← Pasta photos
-   ├── pizza/         ← Pizza photos
-   ├── asian/         ← Asian & noodle photos
-   ├── sushi/         ← Sushi photos
-   ├── sizzlers/      ← Sizzler photos
-   ├── tandoor/       ← Tandoor / clay oven photos
-   ├── mains/         ← Indian mains photos
-   ├── rice/          ← Rice & biryani photos
-   ├── breads/        ← Breads photos
-   ├── soups/         ← Soups photos
-   ├── salads/        ← Salads photos
-   ├── desserts/      ← Desserts photos
-   └── global/        ← Ambience / restaurant / detail shots
-                         (these appear across ALL sections)
+   ├── hero/    ← Hero background + slider (5 wide shots)
+   └── all/     ← ALL your food photos go here (mixed)
+                   image-1.jpg, image-2.jpg, image-3.jpg ...
 
-   Step 2: Name every image like:
-           image-1.jpg, image-2.jpg, image-3.jpg ...
+   That's it. Every category on the menu — Beverages,
+   Pizza, Tandoor, Desserts, etc. — will automatically
+   pull from your images/all/ folder, shuffled so each
+   section looks varied and fresh.
 
-   Step 3: To add more images later — just add the filename
-           to the matching array below and drop the file in.
+   Step 1: Create the folders above next to this HTML file.
+   Step 2: Drop all your photos into images/all/
+           and name them image-1.jpg, image-2.jpg ...
+   Step 3: Add each filename to the allImages[] array below.
+   Step 4: Done. Every section updates automatically.
 
-   NOTE: Missing images show a styled placeholder automatically.
+   LATER — if you get category-specific photos (e.g. only
+   pizza shots for the pizza section), you can swap that
+   category back to its own array in the IMAGES map.
+
+   NOTE: Missing images show a styled placeholder.
          No broken layout, ever.
 ══════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════
    IMAGE REGISTRY
-   Edit the arrays below to match your image files.
-   All paths are relative to this HTML file.
+   ─────────────────────────────────────────────────────
+   YOU ONLY NEED ONE FOLDER.
+
+   Since you have a mixed collection (not category-sorted),
+   put ALL your food/restaurant images in ONE place:
+
+      images/all/
+      ├── image-1.jpg
+      ├── image-2.jpg
+      ├── image-3.jpg
+      └── ... (add as many as you like)
+
+   Every section — showcase banners, masonry walls,
+   float galleries, film reels, polaroid strips,
+   editorial splits — will draw from this same pool,
+   shuffled differently each time so each section
+   still feels fresh and varied.
+
+   The heroImages array (for the top hero reel +
+   cinematic slider) is kept separate so you can
+   optionally use nicer/wider hero-specific shots.
+   If you want the hero to also use the same images,
+   just leave heroImages pointing at the same files.
 ══════════════════════════════════════════════════════ */
 
 // ─── HERO BACKGROUND (cinematic reel + slider) ───────
 // ADD YOUR HERO / SLIDER IMAGES HERE
-// Place in: images/hero/
+// Place in: images/hero/   (or point to images/all/ if same)
 const heroImages = [
   'images/hero/image-1.jpg',
   'images/hero/image-2.jpg',
@@ -2558,211 +2554,51 @@ const heroImages = [
   'images/hero/image-5.jpg',
 ];
 
-// ─── BEVERAGES ────────────────────────────────────────
-// ADD YOUR BEVERAGE IMAGES HERE
-// Place in: images/beverages/
-const beveragesImages = [
-  'images/beverages/image-1.jpg',
-  'images/beverages/image-2.jpg',
-  'images/beverages/image-3.jpg',
-  'images/beverages/image-4.jpg',
-  'images/beverages/image-5.jpg',
-  'images/beverages/image-6.jpg',
-  'images/beverages/image-7.jpg',
-  'images/beverages/image-8.jpg',
-];
-
-// ─── APPETIZERS ───────────────────────────────────────
-// ADD YOUR APPETIZER IMAGES HERE
-// Place in: images/appetizers/
-const appetizersImages = [
-  'images/appetizers/image-1.jpg',
-  'images/appetizers/image-2.jpg',
-  'images/appetizers/image-3.jpg',
-  'images/appetizers/image-4.jpg',
-  'images/appetizers/image-5.jpg',
-  'images/appetizers/image-6.jpg',
-  'images/appetizers/image-7.jpg',
-  'images/appetizers/image-8.jpg',
-];
-
-// ─── PASTA ────────────────────────────────────────────
-// ADD YOUR PASTA IMAGES HERE
-// Place in: images/pasta/
-const pastaImages = [
-  'images/pasta/image-1.jpg',
-  'images/pasta/image-2.jpg',
-  'images/pasta/image-3.jpg',
-  'images/pasta/image-4.jpg',
-  'images/pasta/image-5.jpg',
-  'images/pasta/image-6.jpg',
-];
-
-// ─── PIZZA ────────────────────────────────────────────
-// ADD YOUR PIZZA IMAGES HERE
-// Place in: images/pizza/
-const pizzaImages = [
-  'images/pizza/image-1.jpg',
-  'images/pizza/image-2.jpg',
-  'images/pizza/image-3.jpg',
-  'images/pizza/image-4.jpg',
-  'images/pizza/image-5.jpg',
-  'images/pizza/image-6.jpg',
-  'images/pizza/image-7.jpg',
-];
-
-// ─── ASIAN ────────────────────────────────────────────
-// ADD YOUR ASIAN / NOODLE IMAGES HERE
-// Place in: images/asian/
-const asianImages = [
-  'images/asian/image-1.jpg',
-  'images/asian/image-2.jpg',
-  'images/asian/image-3.jpg',
-  'images/asian/image-4.jpg',
-  'images/asian/image-5.jpg',
-  'images/asian/image-6.jpg',
-];
-
-// ─── SUSHI ────────────────────────────────────────────
-// ADD YOUR SUSHI IMAGES HERE
-// Place in: images/sushi/
-const sushiImages = [
-  'images/sushi/image-1.jpg',
-  'images/sushi/image-2.jpg',
-  'images/sushi/image-3.jpg',
-  'images/sushi/image-4.jpg',
-  'images/sushi/image-5.jpg',
-];
-
-// ─── SIZZLERS ─────────────────────────────────────────
-// ADD YOUR SIZZLER IMAGES HERE
-// Place in: images/sizzlers/
-const sizzlersImages = [
-  'images/sizzlers/image-1.jpg',
-  'images/sizzlers/image-2.jpg',
-  'images/sizzlers/image-3.jpg',
-  'images/sizzlers/image-4.jpg',
-  'images/sizzlers/image-5.jpg',
-];
-
-// ─── TANDOOR ──────────────────────────────────────────
-// ADD YOUR TANDOOR IMAGES HERE
-// Place in: images/tandoor/
-const tandoorImages = [
-  'images/tandoor/image-1.jpg',
-  'images/tandoor/image-2.jpg',
-  'images/tandoor/image-3.jpg',
-  'images/tandoor/image-4.jpg',
-  'images/tandoor/image-5.jpg',
-  'images/tandoor/image-6.jpg',
-];
-
-// ─── INDIAN MAINS ─────────────────────────────────────
-// ADD YOUR MAINS IMAGES HERE
-// Place in: images/mains/
-const mainsImages = [
-  'images/mains/image-1.jpg',
-  'images/mains/image-2.jpg',
-  'images/mains/image-3.jpg',
-  'images/mains/image-4.jpg',
-  'images/mains/image-5.jpg',
-  'images/mains/image-6.jpg',
-  'images/mains/image-7.jpg',
-];
-
-// ─── RICE & BIRYANI ───────────────────────────────────
-// ADD YOUR RICE IMAGES HERE
-// Place in: images/rice/
-const riceImages = [
-  'images/rice/image-1.jpg',
-  'images/rice/image-2.jpg',
-  'images/rice/image-3.jpg',
-  'images/rice/image-4.jpg',
-  'images/rice/image-5.jpg',
-];
-
-// ─── BREADS ───────────────────────────────────────────
-// ADD YOUR BREAD IMAGES HERE
-// Place in: images/breads/
-const breadsImages = [
-  'images/breads/image-1.jpg',
-  'images/breads/image-2.jpg',
-  'images/breads/image-3.jpg',
-  'images/breads/image-4.jpg',
-  'images/breads/image-5.jpg',
-];
-
-// ─── SOUPS ────────────────────────────────────────────
-// ADD YOUR SOUP IMAGES HERE
-// Place in: images/soups/
-const soupsImages = [
-  'images/soups/image-1.jpg',
-  'images/soups/image-2.jpg',
-  'images/soups/image-3.jpg',
-  'images/soups/image-4.jpg',
-];
-
-// ─── SALADS ───────────────────────────────────────────
-// ADD YOUR SALAD IMAGES HERE
-// Place in: images/salads/
-const saladsImages = [
-  'images/salads/image-1.jpg',
-  'images/salads/image-2.jpg',
-  'images/salads/image-3.jpg',
-  'images/salads/image-4.jpg',
-];
-
-// ─── DESSERTS ─────────────────────────────────────────
-// ADD YOUR DESSERT IMAGES HERE
-// Place in: images/desserts/
-const dessertsImages = [
-  'images/desserts/image-1.jpg',
-  'images/desserts/image-2.jpg',
-  'images/desserts/image-3.jpg',
-  'images/desserts/image-4.jpg',
-  'images/desserts/image-5.jpg',
-  'images/desserts/image-6.jpg',
-  'images/desserts/image-7.jpg',
-];
-
-// ─── GLOBAL / AMBIENCE ────────────────────────────────
-// ADD YOUR RESTAURANT / AMBIENCE / DETAIL IMAGES HERE
-// These appear as filler across ALL sections.
-// Place in: images/global/
-const globalImages = [
-  'images/global/image-1.jpg',
-  'images/global/image-2.jpg',
-  'images/global/image-3.jpg',
-  'images/global/image-4.jpg',
-  'images/global/image-5.jpg',
-  'images/global/image-6.jpg',
-  'images/global/image-7.jpg',
-  'images/global/image-8.jpg',
-  'images/global/image-9.jpg',
-  'images/global/image-10.jpg',
+// ─── ALL FOOD IMAGES (shared across every category) ───
+// ┌─────────────────────────────────────────────────────┐
+// │  ADD ALL YOUR IMAGES HERE — just dump everything    │
+// │  Place files in: images/all/                        │
+// │  Name them: image-1.jpg, image-2.jpg, image-3.jpg   │
+// │  To add more: append lines to this array            │
+// └─────────────────────────────────────────────────────┘
+const allImages = [
+  'images/all/image-1.jpg',
+  'images/all/image-2.jpg',
+  'images/all/image-3.jpg',
+  'images/all/image-4.jpg',
+  'images/all/image-5.jpg',
+  'images/all/image-6.jpg',
+  'images/all/image-7.jpg',
+  'images/all/image-8.jpg',
+  'images/all/image-9.jpg',
+  'images/all/image-10.jpg',
+  // ↓ Keep adding lines here as you add more images ↓
+  // 'images/all/image-11.jpg',
+  // 'images/all/image-12.jpg',
 ];
 
 /* ══════════════════════════════════════════════════════
-   INTERNAL LOOKUP MAP — do not edit this section
-   Maps category IDs used by the gallery functions
-   to the image arrays you defined above.
+   INTERNAL LOOKUP — no need to edit below this line
+   All categories point to the same allImages pool.
+   When you have category-specific photos later, you can
+   swap individual entries back to their own arrays.
 ══════════════════════════════════════════════════════ */
 const IMAGES = {
-  beverages:  beveragesImages,
-  appetizers: appetizersImages,
-  pasta:      pastaImages,
-  pizza:      pizzaImages,
-  asian:      asianImages,
-  sushi:      sushiImages,
-  sizzlers:   sizzlersImages,
-  tandoor:    tandoorImages,
-  mains:      mainsImages,
-  rice:       riceImages,
-  breads:     breadsImages,
-  soups:      soupsImages,
-  salads:     saladsImages,
-  desserts:   dessertsImages,
-  global:     globalImages,
+  beverages:  allImages,
+  appetizers: allImages,
+  pasta:      allImages,
+  pizza:      allImages,
+  asian:      allImages,
+  sushi:      allImages,
+  sizzlers:   allImages,
+  tandoor:    allImages,
+  mains:      allImages,
+  rice:       allImages,
+  breads:     allImages,
+  soups:      allImages,
+  salads:     allImages,
+  desserts:   allImages,
+  global:     allImages,
 };
 
 /* ── Utility: shuffle array ── */
@@ -2775,11 +2611,13 @@ function shuffle(arr) {
   return a;
 }
 
-/* ── Get combined pool for a category ── */
+/* ── Get pool for a category — always the full mix, reshuffled ── */
 function getPool(cat) {
-  const specific = IMAGES[cat] || [];
-  const combined = shuffle([...specific, ...IMAGES.global]);
-  return combined;
+  // All categories use the same shared image pool.
+  // shuffle() is called each time so every section gets
+  // a different random ordering of the same images —
+  // visually varied, never repetitive-looking.
+  return shuffle(IMAGES[cat] || allImages);
 }
 
 /* ── Build <img> element with lazy loading + fallback placeholder ── */
@@ -3042,17 +2880,50 @@ function buildCinematicSlider() {
 buildCinematicSlider();
 
 /* ══════════════════════════════════════════════════════
-   HERO BG REEL — uses heroImages array (images/hero/)
-   Images cycle with Ken Burns effect behind hero section
+   HERO BG REEL — dynamically built from heroImages[]
+   ─────────────────────────────────────────────────────
+   TO ADD / CHANGE HERO BACKGROUND IMAGES:
+   → Edit the heroImages array at the TOP of this script
+   → Place image files in: images/hero/
+   → Name them: image-1.jpg, image-2.jpg, image-3.jpg ...
+   Images cycle automatically with Ken Burns effect.
 ══════════════════════════════════════════════════════ */
 function buildHeroBgReel() {
-  const slides = Array.from(document.querySelectorAll('#hero-bg-reel .hero-bg-slide'));
-  if (!slides.length) return;
+  const reel = document.getElementById('hero-bg-reel');
+  if (!reel) return;
 
+  // Guard: need at least one image
+  if (!heroImages || heroImages.length === 0) {
+    reel.style.background = 'linear-gradient(135deg, #0a0a0a 0%, #181210 40%, #0e0c09 100%)';
+    return;
+  }
+
+  // Dynamically inject one .hero-bg-slide per entry in heroImages[]
+  heroImages.forEach((src, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'hero-bg-slide' + (i === 0 ? ' hbs-active' : '');
+    slide.id = 'hbs-' + i;
+
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = 'Hero background ' + (i + 1);
+    img.loading = i === 0 ? 'eager' : 'lazy';
+    img.decoding = 'async';
+
+    // Fallback: missing image → dark gradient, no broken layout
+    img.onerror = function() {
+      this.onerror = null;
+      this.style.display = 'none';
+      slide.style.background = 'linear-gradient(135deg, #0a0a0a 0%, #181210 50%, #0e0c09 100%)';
+    };
+
+    slide.appendChild(img);
+    reel.appendChild(slide);
+  });
+
+  // Auto-cycle slides
+  const slides = reel.querySelectorAll('.hero-bg-slide');
   let cur = 0;
-  // Ensure only first is active on load
-  slides.forEach((s, i) => s.classList.toggle('hbs-active', i === 0));
-
   setInterval(() => {
     slides[cur].classList.remove('hbs-active');
     cur = (cur + 1) % slides.length;
@@ -3170,7 +3041,7 @@ function buildEditorialImg(imgDivId, catId) {
 /* ══════════════════════════════════════════════════════
    INIT ALL VISUAL SECTIONS
 ══════════════════════════════════════════════════════ */
-const ALL_CATS = ['beverages','appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','desserts'];
+const ALL_CATS = ['beverages','appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts'];
 
 ALL_CATS.forEach(cat => {
   buildShowcaseBanner(cat);
@@ -3192,6 +3063,10 @@ buildPolaroidStrip('pol-desserts',  'desserts',  5);
 
 // Film reels
 buildFilmReel('reel-bev-track', 'beverages', 12);
+
+// Editorial image splits
+// TO ADD MORE: duplicate pattern below — buildEditorialImg('ed-SECTION-img', 'SECTION')
+buildEditorialImg('ed-pizza-img', 'pizza');
 
 
 /* ══════════════════════════════════════════════════════

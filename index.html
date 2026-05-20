@@ -1475,7 +1475,7 @@ body { -webkit-font-smoothing: antialiased; }
   /* Section background → warm white — !important to override base black */
   #contact {
     background: #f8f5f0 !important;
-    padding: 70px 28px 80px;
+    padding: 60px 20px 70px;
   }
 
   /* Kill both pseudo-elements (diagonal + glow) */
@@ -1485,14 +1485,14 @@ body { -webkit-font-smoothing: antialiased; }
   /* Stack columns vertically */
   .contact-layout {
     grid-template-columns: 1fr;
-    gap: 52px;
+    gap: 40px;
   }
 
   /* Left info panel — dark text on white */
   .contact-block h4 { color: #555; }
   .contact-info .contact-block p {
     color: #111;
-    font-size: 1.08rem;
+    font-size: 1rem;
     text-shadow: none;
   }
   .contact-heading-left .section-tag { color: rgba(0,0,0,0.45); }
@@ -1502,30 +1502,49 @@ body { -webkit-font-smoothing: antialiased; }
   .contact-social-icons {
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 10px;
   }
   .contact-social-icon { width: 80px; padding: 14px 8px 12px; }
 
-  /* Form panel — dark card on white background */
+  /* Form panel — dark card on white background, FULLY visible */
   .contact-form {
     background: #0a0a0a;
-    padding: 36px 28px 32px;
-    box-shadow: 0 8px 48px rgba(0,0,0,0.18);
+    padding: 32px 24px 28px;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.22);
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: visible;
   }
 
-  .form-row { grid-template-columns: 1fr; }
-  .form-submit { width: 100%; justify-content: center; }
+  .form-row { grid-template-columns: 1fr; gap: 14px; }
+  .form-submit { width: 100%; justify-content: center; padding: 16px 20px; }
+
+  /* Ensure inputs don't overflow */
+  .form-field input,
+  .form-field textarea,
+  .form-field select {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px; /* prevents iOS zoom on focus */
+  }
+  .form-field textarea { height: 110px; }
 }
 
 @media (max-width: 600px) {
-  #contact { padding: 56px 18px 70px !important; }
-  .contact-social-icon { width: 74px; padding: 12px 6px 10px; font-size: 0.55rem; }
+  #contact { padding: 50px 16px 60px !important; }
+  .contact-social-icon { width: 72px; padding: 12px 6px 10px; font-size: 0.55rem; }
   .contact-social-icon svg { width: 24px; height: 24px; }
-  .contact-form { padding: 28px 20px 26px; }
+  .contact-form { padding: 26px 18px 24px; }
+  .contact-form h3 { font-size: 1.6rem !important; }
 }
 
 @media (max-width: 480px) {
-  #contact { padding: 50px 16px 64px !important; }
+  #contact { padding: 44px 14px 56px !important; }
+  .contact-form { padding: 22px 16px 20px; }
+  .contact-social-icons { gap: 8px; }
+  .contact-social-icon { width: 68px; padding: 10px 5px 8px; }
+  .form-field label { font-size: 0.62rem; }
 }
 
 /* Gateway closed state — hides the tabs/panels */
@@ -1589,6 +1608,20 @@ body { -webkit-font-smoothing: antialiased; }
   .highlights-grid { grid-template-columns: 1fr 1fr; }
   .terms-grid { grid-template-columns: 1fr; gap: 0; }
   .contact-layout { grid-template-columns: 1fr; gap: 40px; }
+  .contact-form {
+    background: #0a0a0a;
+    padding: 32px 24px 28px;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.22);
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .form-field input,
+  .form-field textarea,
+  .form-field select {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+  }
   .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
   footer { padding: 40px 24px 20px; }
   .footer-bottom { flex-direction: column; gap: 14px; text-align: center; }
@@ -2663,8 +2696,25 @@ footer::before {
 
 /* ══ MOBILE ══ */
 @media (max-width: 900px) {
-  #contact::before { width: 100%; clip-path: polygon(0 0, 100% 0, 100% 42%, 0 42%); }
+  #contact::before { display: none; }
   #contact::after { display: none; }
+  .contact-layout { grid-template-columns: 1fr; gap: 40px; }
+  .contact-form {
+    background: #0a0a0a;
+    padding: 32px 24px 28px;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.22);
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .form-row { grid-template-columns: 1fr; }
+  .form-submit { width: 100%; justify-content: center; }
+  .form-field input,
+  .form-field textarea,
+  .form-field select {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+  }
 }
 @media (max-width: 600px) {
   #contact::before { display: none; }
@@ -3218,24 +3268,6 @@ video {
           </div>
         </div>
       </div>
-      <div class="menu-list-grid">
-        <div class="menu-list-item"><span class="mli-name">Shanghai Style Lotus Stem</span><span class="mli-price">₹ 329</span></div>
-        <div class="menu-list-item"><span class="mli-name">Chili Paneer Spring Rolls <em class="mli-note">with Kimchi Dip</em></span><span class="mli-price">₹ 299</span></div>
-        <div class="menu-list-item"><span class="mli-name">Chili Paneer</span><span class="mli-price">₹ 299</span></div>
-        <div class="menu-list-item"><span class="mli-name">Manchurian <em class="mli-note">Dry / Gravy</em></span><span class="mli-price">₹ 299 / 339</span></div>
-        <div class="menu-list-item"><span class="mli-name">Spring Rolls</span><span class="mli-price">₹ 269</span></div>
-        <div class="menu-list-item"><span class="mli-name">Cheesy Corn Dawg</span><span class="mli-price">₹ 289</span></div>
-        <div class="menu-list-item"><span class="mli-name">Guacamole with Pita Bread</span><span class="mli-price">₹ 379</span></div>
-        <div class="menu-list-item"><span class="mli-name">Cheese Baked Nachos</span><span class="mli-price">₹ 279</span></div>
-        <div class="menu-list-item"><span class="mli-name">Cheesy Cigar Rolls</span><span class="mli-price">₹ 279</span></div>
-        <div class="menu-list-item"><span class="mli-name">Fries <em class="mli-note">Classic / Peri-Peri / Cheesy</em></span><span class="mli-price">₹ 199 / 229 / 249</span></div>
-        <div class="menu-list-item"><span class="mli-name">Veg Grilled Cheese Sandwich</span><span class="mli-price">₹ 209</span></div>
-        <div class="menu-list-item"><span class="mli-name">Lebanese Falafel Burger</span><span class="mli-price">₹ 269</span></div>
-        <div class="menu-list-item"><span class="mli-name">Caprese Pesto Burger</span><span class="mli-price">₹ 269</span></div>
-        <div class="menu-list-item"><span class="mli-name">Masala Papad</span><span class="mli-price">₹ 59</span></div>
-        <div class="menu-list-item"><span class="mli-name">Roasted Papad</span><span class="mli-price">₹ 29</span></div>
-      </div>
-      <div class="sig-gst">* All prices exclusive of GST</div>
     </div>
 
     <!-- ── MAINS ─────────────────────────────────── -->
@@ -3594,14 +3626,12 @@ video {
 
   <!-- CTA to full menu -->
   <div class="reveal menu-cta-block" style="text-align:center;margin-top:48px;">
-    <p style="font-family:'Cormorant Garamond',serif; font-size:clamp(1rem,2.5vw,1.35rem); font-style:italic; color:rgba(0,0,0,0.4); margin-bottom:28px; letter-spacing:0.04em;">14 categories · 150+ dishes · one beautiful menu</p>
     <a href="./menu-sketchy.html" class="btn-primary" style="display:inline-flex;align-items:center;gap:12px;font-size:0.78rem;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"/>
       </svg>
       View Full Menu
     </a>
-    <span style="display:block;margin-top:14px;font-size:0.6rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(0,0,0,0.25);font-family:'Cinzel',serif;">Opens on a new page</span>
   </div>
 </section><!-- /menu -->
 
@@ -4475,7 +4505,7 @@ video {
   <!-- Header -->
   <div class="reveal" style="text-align:center;margin-bottom:64px;">
     <span class="section-tag" style="color:rgba(255,255,255,0.35);">Real Moments &middot; Real Words</span>
-    <h2 class="section-title" style="color:var(--white);text-align:center;">What Our <strong style="font-style:italic;">Guests</strong> <em style="font-family:'IM Fell English',serif;font-weight:300;">Are Saying</em></h2>
+    <h2 class="section-title" style="color:var(--white);text-align:center;">What Our <strong style="font-style:italic;color:var(--white);">Guests</strong> <em style="font-family:'IM Fell English',serif;font-weight:300;">Are Saying</em></h2>
     <div class="divider-inv" style="margin:16px auto 0;">
       <span class="divider-inv-diamond"></span>
     </div>
