@@ -730,9 +730,9 @@ body{
   position:relative;
   background:var(--off);
   border-bottom:2px solid var(--black);
-  padding:36px 52px 40px;
-  min-height:220px;
-  overflow:hidden;
+  padding:48px 80px 52px;
+  min-height:240px;
+  overflow:visible;
   display:flex;align-items:center;justify-content:center;gap:24px;
 }
 /* Subtle noise texture behind polaroids */
@@ -742,7 +742,9 @@ body{
     repeating-linear-gradient(45deg,transparent,transparent 22px,rgba(0,0,0,.018) 22px,rgba(0,0,0,.018) 23px),
     repeating-linear-gradient(-45deg,transparent,transparent 22px,rgba(0,0,0,.018) 22px,rgba(0,0,0,.018) 23px);
   pointer-events:none;
+  z-index:0;
 }
+.polaroid-strip > *{position:relative;z-index:1;}
 .polaroid-strip:empty{display:none;}
 .polaroid{
   flex-shrink:0;
@@ -1525,6 +1527,185 @@ body{
    MENU SECTION OVERFLOW FIX
 ══════════════════════════════════════════════════════ */
 .menu-section{overflow-x:hidden;width:100%;max-width:100%;}
+
+/* ══════════════════════════════════════════════════════
+   COMPREHENSIVE RESPONSIVE — TABLET (≤900px)
+══════════════════════════════════════════════════════ */
+@media(max-width:900px){
+  /* Masonry wall */
+  .masonry-wall{
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:160px 130px;
+    height:auto;
+  }
+  .mw-cell.mw-hero{grid-row:span 1;grid-column:span 1;}
+
+  /* Float gallery */
+  .float-gallery{
+    height:100px;
+    margin:12px 16px;
+  }
+
+  /* Film reel */
+  .reel-frame{width:120px;height:110px;}
+
+  /* Visual story */
+  .visual-story,.visual-story.vs-flip{
+    grid-template-columns:1fr;
+    min-height:auto;
+  }
+  .vs-images{height:220px;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr;}
+  .vs-img-cell.vsi-large{grid-row:span 1;grid-column:span 1;}
+
+  /* Hover gallery */
+  .hover-gallery{padding:12px 16px;gap:3px;}
+  .hg-item{width:clamp(70px,18%,110px);height:80px;}
+
+  /* Ambient wall */
+  .ambient-wall.aw-tall{height:200px;}
+  .ambient-wall.aw-mid{height:160px;}
+  .aw-grid.aw-4col{grid-template-columns:repeat(4,1fr);}
+  .aw-grid.aw-6col{grid-template-columns:repeat(3,1fr);}
+
+  /* Parallax divider */
+  .parallax-divider{height:130px;}
+  .pd-bg{background-attachment:scroll;}
+
+  /* Showcase cards */
+  .sc-card-hero{width:180px;height:180px;}
+  .sc-card-wide{width:220px;height:180px;}
+  .sc-card-sq{width:170px;height:180px;}
+  .sc-card-tall{width:120px;height:180px;}
+  .sc-card-sm{width:120px;height:150px;}
+
+  /* Footer */
+  .menu-footer{padding:28px 16px;flex-direction:column;gap:16px;}
+  .footer-right{text-align:left;}
+
+  /* Polaroid */
+  .polaroid img{width:100px;height:100px;}
+  .polaroid{padding:7px 7px 28px;}
+}
+
+/* ══════════════════════════════════════════════════════
+   COMPREHENSIVE RESPONSIVE — MOBILE (≤600px)
+══════════════════════════════════════════════════════ */
+@media(max-width:600px){
+  /* Masonry wall */
+  .masonry-wall{
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:130px 110px;
+    height:auto;
+  }
+  .mw-cell.mw-hero{grid-row:span 1;}
+
+  /* Float gallery — horizontal scroll */
+  .float-gallery{
+    display:flex;flex-direction:row;
+    height:90px;
+    margin:10px 14px;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .float-gallery::-webkit-scrollbar{display:none;}
+  .fg-cell{flex:0 0 100px;height:90px;}
+  .fg-cell.fg-wide{flex:0 0 150px;}
+
+  /* Film reel */
+  .reel-frame{width:100px;height:90px;}
+
+  /* Visual story */
+  .visual-story,.visual-story.vs-flip{grid-template-columns:1fr;}
+  .vs-images{
+    height:160px;
+    grid-template-columns:repeat(3,1fr);
+    grid-template-rows:1fr;
+  }
+  .vs-img-cell.vsi-large{grid-row:span 1;}
+
+  /* Hover gallery */
+  .hover-gallery{padding:10px 14px;gap:3px;}
+  .hg-item{width:clamp(64px,20%,88px);height:72px;}
+
+  /* Ambient wall */
+  .ambient-wall.aw-tall{height:160px;}
+  .ambient-wall.aw-mid{height:120px;}
+  .aw-grid.aw-4col{grid-template-columns:1fr 1fr;}
+  .aw-grid.aw-6col{grid-template-columns:1fr 1fr 1fr;}
+
+  /* Parallax */
+  .parallax-divider{height:110px;}
+  .pd-text{font-size:clamp(1.2rem,6vw,2rem);}
+
+  /* Showcase */
+  .sc-card-hero,.sc-card-wide,.sc-card-sq,.sc-card-tall,.sc-card-sm{
+    width:120px;height:150px;
+  }
+  .showcase-banner{padding:12px 0;}
+  .showcase-track{padding:0 10px;gap:8px;}
+
+  /* Editorial split */
+  .editorial-split{grid-template-columns:1fr;height:auto;}
+  .ed-img{height:180px;}
+  .ed-text{padding:24px 18px;}
+
+  /* Polaroid */
+  .polaroid img{width:80px;height:80px;}
+  .polaroid{padding:6px 6px 26px;}
+  .polaroid-strip{padding:14px 10px;gap:8px;flex-wrap:nowrap;overflow-x:auto;}
+  .polaroid-strip::-webkit-scrollbar{display:none;}
+
+  /* Search overlay */
+  .search-overlay{padding:12vh 4vw 4vh;}
+  .search-input-wrap input{font-size:1.4rem;}
+  .search-results{grid-template-columns:1fr;}
+
+  /* Footer */
+  .menu-footer{padding:24px 14px;gap:14px;}
+  .footer-notices{margin-top:16px;padding-top:12px;}
+
+  /* Nav tweaks */
+  .nav-pill{display:none;}
+}
+
+/* ══════════════════════════════════════════════════════
+   EXTRA SMALL SCREENS (≤380px — small Android/iOS)
+══════════════════════════════════════════════════════ */
+@media(max-width:380px){
+  .top-nav{padding:0 10px;gap:4px;}
+  .logo-main{font-size:.92rem;}
+  .nav-search-center{padding:6px 10px;}
+  .nav-search-center span{font-size:.7rem;}
+  .btn-back-site{padding:6px 8px;}
+  .mob-btn{font-size:.78rem;padding:12px 12px;}
+  .hero-heading{font-size:clamp(1.7rem,8vw,2.6rem);}
+  .dish-name{font-size:.92rem;}
+  .dish-price{font-size:1.1rem;}
+  .sec-title{font-size:clamp(1.4rem,7vw,1.9rem);}
+  .dish-grid{padding:0 10px;}
+  .subcat{margin:18px 10px 0;}
+  .masonry-wall{grid-template-columns:1fr 1fr;grid-template-rows:110px 95px;}
+  .hg-item{width:clamp(56px,22%,80px);height:64px;}
+}
+
+/* ══════════════════════════════════════════════════════
+   TOUCH / iOS SAFE AREA SUPPORT
+══════════════════════════════════════════════════════ */
+@supports(padding: env(safe-area-inset-bottom)){
+  .menu-footer{padding-bottom:calc(28px + env(safe-area-inset-bottom));}
+  .mobile-cat-bar{padding-left:max(8px, env(safe-area-inset-left));padding-right:max(8px, env(safe-area-inset-right));}
+}
+
+/* ══════════════════════════════════════════════════════
+   PREVENT HORIZONTAL OVERFLOW GLOBALLY
+══════════════════════════════════════════════════════ */
+.app-shell,.content-pane,.menu-section,.sec-head,.dish-grid,.subcat,
+.showcase-banner,.masonry-wall,.float-gallery,.film-reel,.polaroid-strip,
+.editorial-split,.ambient-wall,.visual-story,.hover-gallery,.parallax-divider{
+  max-width:100%;
+  overflow-x:hidden;
+  box-sizing:border-box;
+}
 </style>
 </head>
 <body>
@@ -2544,8 +2725,7 @@ body{
 ══════════════════════════════════════════════════════ */
 
 // ─── HERO BACKGROUND (cinematic reel + slider) ───────
-// ADD YOUR HERO / SLIDER IMAGES HERE
-// Place in: images/hero/   (or point to images/all/ if same)
+// 5 dedicated hero images from images/hero/ folder
 const heroImages = [
   'images/hero/image-1.jpg',
   'images/hero/image-2.jpg',
@@ -2555,12 +2735,8 @@ const heroImages = [
 ];
 
 // ─── ALL FOOD IMAGES (shared across every category) ───
-// ┌─────────────────────────────────────────────────────┐
-// │  ADD ALL YOUR IMAGES HERE — just dump everything    │
-// │  Place files in: images/all/                        │
-// │  Name them: image-1.jpg, image-2.jpg, image-3.jpg   │
-// │  To add more: append lines to this array            │
-// └─────────────────────────────────────────────────────┘
+// All 75 slots — images/all/image-1.jpg … image-75.jpg
+// Any missing file is gracefully skipped by the onerror fallback
 const allImages = [
   'images/all/image-1.jpg',
   'images/all/image-2.jpg',
@@ -2572,9 +2748,71 @@ const allImages = [
   'images/all/image-8.jpg',
   'images/all/image-9.jpg',
   'images/all/image-10.jpg',
-  // ↓ Keep adding lines here as you add more images ↓
-  // 'images/all/image-11.jpg',
-  // 'images/all/image-12.jpg',
+  'images/all/image-11.jpg',
+  'images/all/image-12.jpg',
+  'images/all/image-13.jpg',
+  'images/all/image-14.jpg',
+  'images/all/image-15.jpg',
+  'images/all/image-16.jpg',
+  'images/all/image-17.jpg',
+  'images/all/image-18.jpg',
+  'images/all/image-19.jpg',
+  'images/all/image-20.jpg',
+  'images/all/image-21.jpg',
+  'images/all/image-22.jpg',
+  'images/all/image-23.jpg',
+  'images/all/image-24.jpg',
+  'images/all/image-25.jpg',
+  'images/all/image-26.jpg',
+  'images/all/image-27.jpg',
+  'images/all/image-28.jpg',
+  'images/all/image-29.jpg',
+  'images/all/image-30.jpg',
+  'images/all/image-31.jpg',
+  'images/all/image-32.jpg',
+  'images/all/image-33.jpg',
+  'images/all/image-34.jpg',
+  'images/all/image-35.jpg',
+  'images/all/image-36.jpg',
+  'images/all/image-37.jpg',
+  'images/all/image-38.jpg',
+  'images/all/image-39.jpg',
+  'images/all/image-40.jpg',
+  'images/all/image-41.jpg',
+  'images/all/image-42.jpg',
+  'images/all/image-43.jpg',
+  'images/all/image-44.jpg',
+  'images/all/image-45.jpg',
+  'images/all/image-46.jpg',
+  'images/all/image-47.jpg',
+  'images/all/image-48.jpg',
+  'images/all/image-49.jpg',
+  'images/all/image-50.jpg',
+  'images/all/image-51.jpg',
+  'images/all/image-52.jpg',
+  'images/all/image-53.jpg',
+  'images/all/image-54.jpg',
+  'images/all/image-55.jpg',
+  'images/all/image-56.jpg',
+  'images/all/image-57.jpg',
+  'images/all/image-58.jpg',
+  'images/all/image-59.jpg',
+  'images/all/image-60.jpg',
+  'images/all/image-61.jpg',
+  'images/all/image-62.jpg',
+  'images/all/image-63.jpg',
+  'images/all/image-64.jpg',
+  'images/all/image-65.jpg',
+  'images/all/image-66.jpg',
+  'images/all/image-67.jpg',
+  'images/all/image-68.jpg',
+  'images/all/image-69.jpg',
+  'images/all/image-70.jpg',
+  'images/all/image-71.jpg',
+  'images/all/image-72.jpg',
+  'images/all/image-73.jpg',
+  'images/all/image-74.jpg',
+  'images/all/image-75.jpg',
 ];
 
 /* ══════════════════════════════════════════════════════
@@ -2627,28 +2865,16 @@ function makeImg(src, alt='') {
   img.alt = alt;
   img.loading = 'lazy';
   img.decoding = 'async';
-  // Fallback: if local image is missing, render a premium placeholder
+  // Fallback: if local image is missing, hide the parent frame/card entirely
   img.onerror = function() {
     this.onerror = null;
-    // Replace broken img with a styled placeholder div
-    const ph = document.createElement('div');
-    ph.style.cssText = `
-      width:100%;height:100%;
-      background:linear-gradient(135deg,#141414 0%,#1e1a17 40%,#181410 100%);
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:10px;position:absolute;inset:0;
-    `;
-    ph.innerHTML = `
-      <div style="width:34px;height:34px;border:1.5px solid rgba(201,169,110,.45);border-radius:2px;display:flex;align-items:center;justify-content:center;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(201,169,110,.6)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-      </div>
-      <span style="font-family:'Cinzel',serif;font-size:.28rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(201,169,110,.5);">Sketch-Y</span>
-    `;
-    if (this.parentElement) {
-      this.parentElement.style.position = 'relative';
-      this.parentElement.appendChild(ph);
-      this.style.display = 'none';
+    // Hide any frame/card container so no empty slot is shown
+    const hideSelectors = ['.sc-card','.mw-cell','.fg-cell','.polaroid','.reel-frame','.aw-cell','.hg-item','.vs-img-cell','.ed-img'];
+    for (const sel of hideSelectors) {
+      const container = this.closest(sel);
+      if (container) { container.style.display = 'none'; return; }
     }
+    this.style.display = 'none';
   };
   return img;
 }
@@ -2678,13 +2904,15 @@ function buildMasonryWall(catId) {
   if (pool.length === 0) { wall.style.display = 'none'; return; }
   const labels = WALL_LABELS[catId] || ['Sketch-Y'];
 
-  // Cell configs: hero (tall, col1), 4 smaller
+  // Cell configs: hero (tall, col1 spans 2 rows) + 6 smaller cells to fill remaining 3col×2row=6 slots
   const configs = [
     { cls: 'mw-hero', label: labels[0] || '' },
     { cls: '', label: labels[1] || '' },
     { cls: '', label: labels[2] || '' },
     { cls: '', label: labels[3] || '' },
-    { cls: '', label: labels[4] || '' }
+    { cls: '', label: labels[4] || '' },
+    { cls: '', label: labels[0] || '' },
+    { cls: '', label: labels[1] || '' }
   ];
 
   const tags = ['Popular','Chef Pick','New','Signature',''];
@@ -2700,7 +2928,14 @@ function buildMasonryWall(catId) {
       ${tag ? `<div class="mw-tag">${tag}</div>` : ''}
       <div class="mw-label">${cfg.label}</div>
     `;
-    cell.insertBefore(makeImg(src, cfg.label), cell.firstChild);
+    const img = makeImg(src, cfg.label);
+    // If image fails, switch cell to placeholder styling
+    const origOnerror = img.onerror;
+    img.onerror = function() {
+      cell.style.display = 'none';
+      this.style.display = 'none';
+    };
+    cell.insertBefore(img, cell.firstChild);
     wall.appendChild(cell);
   });
 }
@@ -2721,7 +2956,9 @@ function buildFloatGallery(elId, catId, count=4) {
     cell.className = 'fg-cell' + (i === 1 ? ' fg-wide' : '');
     const badge = i === 0 ? 'Featured' : '';
     cell.innerHTML = `<div class="fg-badge">${badge}</div>`;
-    cell.insertBefore(makeImg(src), cell.firstChild);
+    const img = makeImg(src);
+    // fg-cell onerror already handled by makeImg via .fg-cell selector
+    cell.insertBefore(img, cell.firstChild);
     el.appendChild(cell);
   }
 }
@@ -2730,9 +2967,9 @@ function buildFloatGallery(elId, catId, count=4) {
    BUILD POLAROID STRIPS
 ══════════════════════════════════════════════════════ */
 const POL_CAPTIONS = {
-  beverages: ['morning ritual','afternoon sip','evening chill','our brew','cloud nine'],
-  tandoor:   ['clay fire','tikka tales','smoky affair','char marks','the chap'],
-  desserts:  ['sweet dreams','sugar high','bake love','melt moment','happy end']
+  beverages: ['simply delicious','so yummy','irresistible','a must-try','totally divine'],
+  tandoor:   ['simply delicious','so yummy','irresistible','a must-try','totally divine'],
+  desserts:  ['simply delicious','so yummy','irresistible','a must-try','totally divine']
 };
 
 function buildPolaroidStrip(elId, catId, count=5) {
@@ -2840,13 +3077,10 @@ function buildCinematicSlider() {
     img.alt = '';
     img.loading = i === 0 ? 'eager' : 'lazy';
     img.decoding = 'async';
-    // Fallback: if slider image missing, show cinematic dark gradient
+    // Fallback: if slider image missing, hide the slide
     img.onerror = function() {
       this.onerror = null;
-      this.style.display = 'none';
-      s.style.background = `
-        linear-gradient(135deg, #0a0a0a 0%, #181210 40%, #0e0c09 100%)
-      `;
+      s.style.display = 'none';
     };
     s.appendChild(img);
     // Insert before the overlay
@@ -2910,11 +3144,10 @@ function buildHeroBgReel() {
     img.loading = i === 0 ? 'eager' : 'lazy';
     img.decoding = 'async';
 
-    // Fallback: missing image → dark gradient, no broken layout
+    // Fallback: missing image → hide slide so no empty/broken slide shows
     img.onerror = function() {
       this.onerror = null;
-      this.style.display = 'none';
-      slide.style.background = 'linear-gradient(135deg, #0a0a0a 0%, #181210 50%, #0e0c09 100%)';
+      slide.style.display = 'none';
     };
 
     slide.appendChild(img);
