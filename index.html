@@ -2889,6 +2889,59 @@ body, html {
   }
 }
 
+/* ── STAT STRIP: 5 stars responsive fix ── */
+.stat-strip {
+  background: var(--white);
+  border-top: 5px solid var(--black);
+  border-bottom: 5px solid var(--black);
+  padding: 0 60px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  overflow: hidden;
+}
+.stat-strip-item {
+  padding: 36px 0;
+  text-align: center;
+  border-right: 1px solid rgba(0,0,0,0.1);
+  position: relative;
+}
+.stat-strip-item:last-child { border-right: none; }
+.stat-strip-num {
+  font-family: 'IM Fell English', serif;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-style: italic;
+  color: var(--black);
+  line-height: 1;
+}
+.stat-strip-stars {
+  font-size: clamp(1.1rem, 4vw, 2.4rem);
+  white-space: nowrap;
+  overflow: visible;
+  letter-spacing: 0.05em;
+}
+.stat-strip-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #888;
+  margin-top: 6px;
+}
+@media (max-width: 480px) {
+  .stat-strip {
+    grid-template-columns: repeat(2, 1fr) !important;
+    padding: 0 10px !important;
+  }
+  .stat-strip-item {
+    border-right: 1px solid rgba(0,0,0,0.1) !important;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+  }
+  .stat-strip-item:nth-child(2),
+  .stat-strip-item:nth-child(4) { border-right: none !important; }
+  .stat-strip-stars { font-size: clamp(1.3rem, 8vw, 2rem) !important; }
+}
+
 /* Ensure no fixed elements block content on small screens */
 @media (max-width: 480px) {
   nav { padding: 12px 16px; }
@@ -4103,31 +4156,22 @@ video {
 <div class="chevron-stripe-inv"></div>
 
 <!-- ── Bold stat strip: architectural number band — white on black → black on white ── -->
-<div style="
-  background: var(--white);
-  border-top: 5px solid var(--black);
-  border-bottom: 5px solid var(--black);
-  padding: 0 60px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  overflow: hidden;
-">
-  <div style="padding:36px 0;text-align:center;border-right:1px solid rgba(0,0,0,0.1);position:relative;">
-    <div style="font-family:'IM Fell English',serif;font-size:clamp(2.4rem,5vw,4rem);font-style:italic;color:var(--black);line-height:1;">100+</div>
-    <div style="font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.4em;text-transform:uppercase;color:#888;margin-top:6px;">Menu Items</div>
+<div class="stat-strip">
+  <div class="stat-strip-item">
+    <div class="stat-strip-num">100+</div>
+    <div class="stat-strip-label">Menu Items</div>
   </div>
-  <div style="padding:36px 0;text-align:center;border-right:1px solid rgba(0,0,0,0.1);">
-    <div style="font-family:'IM Fell English',serif;font-size:clamp(2.4rem,5vw,4rem);font-style:italic;color:var(--black);line-height:1;">∞</div>
-    <div style="font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.4em;text-transform:uppercase;color:#888;margin-top:6px;">Memories Made</div>
+  <div class="stat-strip-item">
+    <div class="stat-strip-num">∞</div>
+    <div class="stat-strip-label">Memories Made</div>
   </div>
-  <div style="padding:36px 0;text-align:center;border-right:1px solid rgba(0,0,0,0.1);">
-    <div style="font-family:'IM Fell English',serif;font-size:clamp(2.4rem,5vw,4rem);font-style:italic;color:var(--black);line-height:1;">1</div>
-    <div style="font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.4em;text-transform:uppercase;color:#888;margin-top:6px;">Family Dream</div>
+  <div class="stat-strip-item">
+    <div class="stat-strip-num">1</div>
+    <div class="stat-strip-label">Family Dream</div>
   </div>
-  <div style="padding:36px 0;text-align:center;">
-    <div style="font-family:'IM Fell English',serif;font-size:clamp(2.4rem,5vw,4rem);font-style:italic;color:var(--black);line-height:1;">★★★★★</div>
-    <div style="font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.4em;text-transform:uppercase;color:#888;margin-top:6px;">Guest Rating</div>
+  <div class="stat-strip-item">
+    <div class="stat-strip-num stat-strip-stars">★★★★★</div>
+    <div class="stat-strip-label">Guest Rating</div>
   </div>
 </div>
 
@@ -4823,7 +4867,7 @@ video {
       <ul>
         <li><a href="#hero">Home</a></li>
         <li><a href="#about">Our Story</a></li>
-        <li><a href="./menu.html">Menu</a></li>
+        <li><a href="./menu-sketchy.html">Menu</a></li>
         <li><a href="#highlights">Why Sketch-Y</a></li>
         <li><a href="#terms">T&amp;C</a></li>
       </ul>
@@ -4831,11 +4875,11 @@ video {
     <div class="footer-col">
       <h4>Menu</h4>
       <ul>
-        <li><a href="./menu.html?tab=beverages">Beverages</a></li>
-        <li><a href="./menu.html?tab=pizza">Pizzas</a></li>
-        <li><a href="./menu.html?tab=mains">Indian Mains</a></li>
-        <li><a href="./menu.html?tab=tandoor">Tandoor</a></li>
-        <li><a href="./menu.html?tab=sushi">Sushi</a></li>
+        <li><a href="#menu" onclick="setTimeout(function(){switchSigTab('beverages',document.querySelector('[onclick*=beverages]'))},400)">Beverages</a></li>
+        <li><a href="#menu" onclick="setTimeout(function(){switchSigTab('pizza',document.querySelector('[onclick*=pizza]'))},400)">Pizzas</a></li>
+        <li><a href="#menu" onclick="setTimeout(function(){switchSigTab('mains',document.querySelector('[onclick*=mains]'))},400)">Indian Mains</a></li>
+        <li><a href="#menu" onclick="setTimeout(function(){switchSigTab('asian',document.querySelector('[onclick*=asian]'))},400)">Tandoor</a></li>
+        <li><a href="#menu" onclick="setTimeout(function(){switchSigTab('pasta',document.querySelector('[onclick*=pasta]'))},400)">Sushi</a></li>
       </ul>
     </div>
     <div class="footer-col">
