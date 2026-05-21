@@ -1607,6 +1607,8 @@ body { -webkit-font-smoothing: antialiased; }
   .about-badge { left: 0; }
   .highlights-grid { grid-template-columns: 1fr 1fr; }
   .terms-grid { grid-template-columns: 1fr; gap: 0; }
+  .term-item:nth-child(even) { padding-left: 0; border-left: none; }
+  .term-item { padding: 18px 12px; }
   .contact-layout { grid-template-columns: 1fr; gap: 40px; }
   .contact-form {
     background: #0a0a0a;
@@ -1687,7 +1689,10 @@ body { -webkit-font-smoothing: antialiased; }
   .menu-cards { grid-template-columns: 1fr; }
   .menu-cards.two-col .menu-card-img { height: 160px; }
   .form-row { grid-template-columns: 1fr; }
-  .footer-top { grid-template-columns: 1fr; gap: 28px; }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 22px; }
+  .footer-brand { grid-column: 1 / -1; }
+  .footer-top { grid-template-columns: 1fr; gap: 20px; }
+  .footer-brand { grid-column: auto; }
   .footer-bottom p { font-size: 0.65rem; }
   .celeb-events-grid { grid-template-columns: 1fr; }
   .celeb-tags { gap: 5px; }
@@ -2823,14 +2828,17 @@ body, html {
     grid-template-rows: auto;
     gap: 6px;
   }
+  /* Override all inline grid-column / grid-row placement so cards fill naturally */
   .celeb-card {
+    grid-column: auto !important;
+    grid-row: auto !important;
     min-height: 160px;
     max-height: 220px;
     height: 180px;
   }
   .celeb-card--tall,
-  .celeb-card--taller { grid-row: span 1; height: 180px; }
-  .celeb-card--wide   { grid-column: span 2; height: 160px; }
+  .celeb-card--taller { grid-row: span 1 !important; height: 180px; }
+  .celeb-card--wide   { grid-column: span 2 !important; height: 160px; }
   .celeb-card-title   { font-size: 0.88rem !important; }
   .celeb-event-tag    { font-size: 0.5rem !important; padding: 3px 10px !important; }
   .celeb-top-badge    { font-size: 0.42rem !important; padding: 3px 9px !important; }
@@ -2842,13 +2850,15 @@ body, html {
     gap: 5px;
   }
   .celeb-card {
+    grid-column: auto !important;
+    grid-row: auto !important;
     height: 150px;
     min-height: 140px;
     max-height: 160px;
   }
   .celeb-card--tall,
-  .celeb-card--taller { grid-row: span 1; height: 150px; }
-  .celeb-card--wide   { grid-column: span 2; height: 130px; }
+  .celeb-card--taller { grid-row: span 1 !important; height: 150px; }
+  .celeb-card--wide   { grid-column: span 2 !important; height: 130px; }
   .celeb-card-info    { padding: 12px 12px 14px; }
   .celeb-cta-block    { margin-top: 32px; }
   .celeb-head         { margin-bottom: 28px; }
@@ -2861,6 +2871,22 @@ body, html {
 @media (max-width: 600px) {
   .reviews-grid { grid-template-columns: 1fr !important; }
   #reviews { padding: 56px 16px !important; }
+}
+
+/* Review card header: prevent star row from wrapping/clipping on mobile */
+@media (max-width: 600px) {
+  .reviews-grid > div > div[style*="padding:26px"] > div:first-child {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  /* Star element: ensure all 5 stars visible */
+  .reviews-grid > div > div[style*="padding:26px"] > div:first-child > div[style*="margin-left:auto"] {
+    margin-left: 0 !important;
+    width: 100%;
+    font-size: 1.05rem !important;
+    letter-spacing: 1px !important;
+    color: #c8a96e;
+  }
 }
 
 /* Ensure no fixed elements block content on small screens */
@@ -4680,14 +4706,9 @@ video {
         <div class="divider" style="margin-bottom:28px;"><span class="divider-diamond"></span></div>
       </div>
 
-       <div class="contact-block">
-        <h4> Contact no.</h4>
-        <p>+91 8955133968</p>
-      </div>
-
       <div class="contact-block">
         <h4>📍 Location</h4>
-        <p>5th floor, Baba Square, K-572, Makarwali Rd, G block, Vaishali Nagar,<br>Ajmer, Rajasthan- 305004</p>
+        <p>The Sketch-Y Cuisine<br>Ajmer, Rajasthan, India</p>
       </div>
 
       <div class="contact-block">
@@ -4706,7 +4727,7 @@ video {
         <div class="contact-social-icons">
 
           <!-- Instagram -->
-          <a href="https://instagram.com/the.sketchy.cuisine" target="_blank" class="contact-social-icon icon-insta" title="Instagram">
+          <a href="https://instagram.com/thesketchycuisine" target="_blank" class="contact-social-icon icon-insta" title="Instagram">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
               <circle cx="12" cy="12" r="4.5"/>
