@@ -829,14 +829,9 @@ button,a{
 .reel-track{
   display:flex;gap:8px;padding:14px 40px;
   overflow-x:auto;scrollbar-width:none;
-  animation:reelSlide 40s linear infinite;
+  will-change:scroll-position;
 }
 .reel-track::-webkit-scrollbar{display:none;}
-@keyframes reelSlide{
-  0%{transform:translateX(0);}
-  100%{transform:translateX(-50%);}
-}
-.reel-track:hover{animation-play-state:paused;}
 .reel-frame{
   flex-shrink:0;width:160px;height:140px;
   position:relative;overflow:hidden;
@@ -3087,6 +3082,32 @@ function buildFilmReel(trackId, catId, frameCount=14) {
 }
 
 /* ══════════════════════════════════════════════════════
+   AUTO-SCROLL FILM REEL TRACKS (same RAF approach as showcase-track)
+══════════════════════════════════════════════════════ */
+function startReelScroll(trackId) {
+  const track = document.getElementById(trackId);
+  if (!track) return;
+  let isPaused = false;
+  let pos = 0;
+  const speed = 0.7;
+
+  track.addEventListener('mouseenter', () => isPaused = true);
+  track.addEventListener('mouseleave', () => isPaused = false);
+  track.addEventListener('touchstart', () => isPaused = true, {passive:true});
+  track.addEventListener('touchend', () => setTimeout(() => isPaused = false, 1200));
+
+  function pan() {
+    if (!isPaused && track.scrollWidth > track.clientWidth) {
+      pos += speed;
+      if (pos >= track.scrollWidth / 2) pos = 0;
+      track.scrollLeft = pos;
+    }
+    requestAnimationFrame(pan);
+  }
+  requestAnimationFrame(pan);
+}
+
+/* ══════════════════════════════════════════════════════
    BUILD SHOWCASE BANNERS
 ══════════════════════════════════════════════════════ */
 const CARD_SIZES = ['sc-card-tall','sc-card-sq','sc-card-wide','sc-card-sm','sc-card-hero','sc-card-tall','sc-card-sq'];
@@ -3375,6 +3396,7 @@ function triggerGalleryBuilds() {
 
   // Film reels
   buildFilmReel('reel-bev-track', 'beverages', 12);
+  startReelScroll('reel-bev-track');
 
   // Hero bg reel + cinematic slider (depend on heroImages pool)
   buildHeroBgReel();
