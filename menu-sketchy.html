@@ -2091,10 +2091,7 @@ button,a{
       <!-- Editorial split -->
       <div class="editorial-split" id="ed-pizza">
         <div class="ed-img" id="ed-pizza-img">
-          <!-- Placeholder gradient when no image -->
-          <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a 0%,#2d2218 50%,#1a1a1a 100%);display:flex;align-items:center;justify-content:center;">
-            <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:3rem;color:rgba(201,169,110,.15);">Neapolitan</div>
-          </div>
+          <img src="images/pizza/image-1.jpg" alt="Pizza" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.85);">
         </div>
         <div class="ed-text">
           <div class="ed-eyebrow">Neapolitan Style</div>
@@ -2734,8 +2731,8 @@ button,a{
    Tries image-1 through image-N for all supported extensions.
    Returns a flat array of all candidate paths.
    Missing ones are silently dropped by makeImg's onerror.
-   MAX_IMAGES_PER_FOLDER: raise if you have more than 60 images */
-const MAX_IMAGES_PER_FOLDER = 60;
+   MAX_IMAGES_PER_FOLDER: raise if you have more than 30 images */
+const MAX_IMAGES_PER_FOLDER = 30;
 const IMG_EXTS = ['jpg','jpeg','png','webp','avif'];
 
 function genPaths(folder) {
@@ -2748,17 +2745,18 @@ function genPaths(folder) {
   return paths;
 }
 
-/* ── Async loader: returns only the paths that actually load ── */
+/* ── Fast parallel loader: tests ALL candidates simultaneously ──
+   Instead of slow one-by-one sequential testing, all image paths
+   are tested at the same time in parallel. This means the page
+   discovers all available images in ONE round-trip time instead
+   of waiting for hundreds of sequential checks. */
 function loadValidImages(folder) {
   return new Promise(resolve => {
     const candidates = genPaths(folder);
-    let found = 0;
-    let checked = 0;
-    const valid = [];
-    // Test in parallel; stop after we hit MAX_IMAGES_PER_FOLDER successes
-    // or all candidates are tested.
-    // Strategy: test image-1 first per extension, then image-2, etc.
-    // Group by number so we stop at first missing number
+
+    // Deduplicate by number: for each image number, only test one
+    // extension at a time — prefer jpg first, then others.
+    // This cuts requests by ~5x vs testing all extensions blindly.
     const byNum = {};
     candidates.forEach(p => {
       const m = p.match(/image-(\d+)\./);
@@ -2769,38 +2767,35 @@ function loadValidImages(folder) {
     });
 
     const nums = Object.keys(byNum).map(Number).sort((a,b) => a-b);
-    let consecutiveMisses = 0;
-    let numIdx = 0;
 
-    function testNext() {
-      if (numIdx >= nums.length || consecutiveMisses >= 3) {
-        resolve(valid);
-        return;
-      }
-      const n = nums[numIdx++];
+    // For each number, test the preferred extension first (jpg/jpeg),
+    // then fallback — but ALL numbers are tested in parallel.
+    const promises = nums.map(n => {
       const exts = byNum[n];
-      let extIdx = 0;
-      let foundForNum = false;
-
-      function tryExt() {
-        if (extIdx >= exts.length) {
-          if (!foundForNum) consecutiveMisses++;
-          else consecutiveMisses = 0;
-          testNext();
-          return;
+      return new Promise(res => {
+        let idx = 0;
+        function tryNext() {
+          if (idx >= exts.length) { res(null); return; }
+          const src = exts[idx++];
+          const img = new Image();
+          img.onload = () => res(src);
+          img.onerror = tryNext;
+          img.src = src;
         }
-        const src = exts[extIdx++];
-        const img = new Image();
-        img.onload = () => {
-          if (!foundForNum) { valid.push(src); foundForNum = true; }
-          tryExt(); // skip remaining exts for this number
-        };
-        img.onerror = tryExt;
-        img.src = src;
+        tryNext();
+      });
+    });
+
+    Promise.all(promises).then(results => {
+      // Filter nulls and stop at first gap (3 consecutive misses)
+      const valid = [];
+      let misses = 0;
+      for (const src of results) {
+        if (src) { valid.push(src); misses = 0; }
+        else { misses++; if (misses >= 3) break; }
       }
-      tryExt();
-    }
-    testNext();
+      resolve(valid);
+    });
   });
 }
 
@@ -2895,13 +2890,14 @@ function getPool(cat) {
   return shuffle([...specific]);
 }
 
-/* ── Build <img> element with lazy loading + smart positioning + fallback ── */
-function makeImg(src, alt='') {
+/* ── Build <img> element with smart loading + positioning + fallback ── */
+function makeImg(src, alt='', eager=false) {
   const img = document.createElement('img');
   img.src = src;
   img.alt = alt;
-  img.loading = 'lazy';
-  img.decoding = 'async';
+  img.loading = eager ? 'eager' : 'lazy';
+  img.decoding = eager ? 'sync' : 'async';
+  img.fetchPriority = eager ? 'high' : 'auto';
   img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center center;display:block;';
   // Smart focal point: after load, check aspect ratio
   // Portrait images (taller than wide) → show top-center (face/top of dish)
@@ -2999,7 +2995,7 @@ function buildMasonryWall(catId) {
       ${tag ? `<div class="mw-tag">${tag}</div>` : ''}
       ${label ? `<div class="mw-label">${label}</div>` : ''}
     `;
-    cell.insertBefore(makeImg(src, label), cell.firstChild);
+    cell.insertBefore(makeImg(src, label, i === 0), cell.firstChild);
     wall.appendChild(cell);
   });
 }
@@ -3135,7 +3131,7 @@ function buildShowcaseBanner(catId) {
       <div class="sc-overlay"></div>
       <div class="sc-label">Sketch-Y Kitchen</div>
     `;
-    card.insertBefore(makeImg(src), card.firstChild);
+    card.insertBefore(makeImg(src, '', i === 0), card.firstChild);
     track.appendChild(card);
   });
 }
@@ -3242,7 +3238,8 @@ function buildHeroBgReel() {
     img.src = src;
     img.alt = '';
     img.loading = i === 0 ? 'eager' : 'lazy';
-    img.decoding = 'async';
+    img.decoding = i === 0 ? 'sync' : 'async';
+    img.fetchPriority = i === 0 ? 'high' : 'auto';
     img.onerror = function() {
       this.style.display = 'none';
       slide.style.background = 'linear-gradient(135deg,#0a0a0a 0%,#1a1210 100%)';
