@@ -106,7 +106,7 @@ nav.scrolled {
 }
 .nav-logo .logo-sketchy {
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 1.55rem; font-weight: 700; font-style: italic;
+  font-size: 1.55rem; font-weight: 700; font-style: normal;
   color: var(--black); letter-spacing: 0.02em; line-height: 1;
 }
 .nav-logo .logo-sketchy span { color: var(--light); }
@@ -291,9 +291,11 @@ nav.scrolled {
 .btn-outline:hover { border-color: var(--white); background: rgba(255,255,255,0.1); transform: translateY(-2px); }
 /* Scroll indicator */
 .scroll-indicator {
-  position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: 28px;
+  left: 0; right: 0;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   opacity: 0; animation: fadeUp 1s 1.4s forwards; z-index: 2;
+  width: 100%;
 }
 .scroll-indicator span { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.88); }
 .scroll-line { width: 1px; height: 46px; background: linear-gradient(to bottom, rgba(255,255,255,0.90), transparent); animation: scrollLine 2s ease-in-out infinite; }
@@ -808,28 +810,28 @@ section { padding: 110px 60px; }
   gap: 10px;
 }
 
-/* ── Portrait video row — cards 5 & 6 ───────────────
-   A 2-up portrait row below the upper mosaic cards.
-   Each card holds a 9:16-ratio video like a phone reel.
+/* ── Portrait video row — 4 cards side by side (9:16 reels) ─────────────
+   Desktop: 4 equal columns in a single row
+   Tablet:  2 columns × 2 rows
+   Mobile:  2 columns × 2 rows (full width)
 ─────────────────────────────────────────────────────── */
 .celeb-portrait-row {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-  /* Extra cards can be added here — they flow naturally */
+  align-items: start;
 }
 
-/* Portrait card wrapper */
+/* Portrait card — strict 9:16 phone reel ratio */
 .celeb-card--portrait {
   position: relative;
   overflow: hidden;
   border-radius: 4px;
   background: #111;
   cursor: pointer;
-  /* 9:16 aspect ratio — true portrait */
   aspect-ratio: 9 / 16;
-  max-height: 600px;
+  width: 100%;
   will-change: transform;
   box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.1);
   transition: transform 0.55s cubic-bezier(0.22,1,0.36,1),
@@ -1093,11 +1095,10 @@ section { padding: 110px 60px; }
   }
   .celeb-card--wide { grid-column: span 2; }
   .celeb-card--tall { grid-row: span 2; }
+  /* Portrait row: 4 columns still fits at 1200px */
   .celeb-portrait-row {
-    grid-template-columns: 1fr 1fr;
-  }
-  .celeb-card--portrait {
-    max-height: 520px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
   }
 }
 @media (max-width: 900px) {
@@ -1106,23 +1107,54 @@ section { padding: 110px 60px; }
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 240px 200px auto;
   }
+  /* Reset inline grid placement on upper mosaic cards */
+  .celeb-mosaic > .celeb-card,
+  .celeb-mosaic > .celeb-card.celeb-card--tall {
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+  .celeb-card--tall { grid-row: span 2; }
+  /* Portrait row: collapse to 2×2 on tablet */
   .celeb-portrait-row {
     grid-template-columns: 1fr 1fr;
     gap: 8px;
   }
   .celeb-card--portrait {
-    max-height: 440px;
+    aspect-ratio: 9 / 16;
   }
 }
 @media (max-width: 600px) {
-  .celebrate-inner { padding: 60px 18px 70px; }
+  .celebrate-inner { padding: 60px 14px 70px; }
   .celeb-head-title { font-size: clamp(2rem, 9vw, 3rem); }
+  .celeb-mosaic {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+  }
+  /* Reset inline grid-column/grid-row overrides on upper mosaic cards */
+  .celeb-mosaic > .celeb-card,
+  .celeb-mosaic > .celeb-card.celeb-card--tall {
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+  .celeb-card--tall   { grid-row: span 1; }
+  .celeb-card--wide   { grid-column: span 2; }
+  /* Portrait row: 2×2 on mobile */
+  .celeb-portrait-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .celeb-card--portrait {
+    aspect-ratio: 9 / 16;
+    width: 100%;
+  }
+}
+@media (max-width: 400px) {
+  .celebrate-inner { padding: 50px 10px 60px; }
   .celeb-portrait-row {
     grid-template-columns: 1fr 1fr;
     gap: 6px;
   }
   .celeb-card--portrait {
-    max-height: 360px;
     aspect-ratio: 9 / 16;
   }
 }
@@ -1970,13 +2002,13 @@ body { -webkit-font-smoothing: antialiased; }
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: flex-end;
-  gap: 18px 10px;
+  align-items: flex-start;
+  gap: 10px;
   margin-top: 10px;
   max-width: 1300px;
   margin-left: auto;
   margin-right: auto;
-  padding: 40px 20px 60px;
+  padding: 20px 20px 40px;
   box-sizing: border-box;
 }
 
@@ -2206,8 +2238,8 @@ body { -webkit-font-smoothing: antialiased; }
   .mw-header-wrap { flex-direction: column; align-items: flex-start; }
   .mw-header-right { align-items: flex-start; }
   .insta-wall-grid {
-    gap: 14px 8px;
-    padding: 24px 8px 40px;
+    gap: 10px 8px;
+    padding: 16px 8px 24px;
     justify-content: center;
   }
   /* Flatten rotations on small screens so nothing clips out of view */
@@ -2220,15 +2252,37 @@ body { -webkit-font-smoothing: antialiased; }
   .insta-card:nth-child(7)  { --rot: -2deg; }
   .insta-card:nth-child(8)  { --rot:  1.5deg; }
   .insta-card:nth-child(9)  { --rot: -1deg; }
+  /* Consistent card sizes on tablet */
+  .insta-card { --pol-w: clamp(130px, 42vw, 200px); }
+  .insta-card--tall { --pol-w: clamp(120px, 38vw, 188px); }
+  .insta-card--wide { --pol-w: clamp(150px, 48vw, 230px); }
+  .insta-card--reel { --pol-w: clamp(110px, 34vw, 165px); }
 }
 @media (max-width: 480px) {
+  #memory-wall { padding: 56px 12px !important; overflow-x: hidden; }
   .insta-wall-grid {
-    gap: 12px 6px;
-    padding: 16px 6px 32px;
+    gap: 8px;
+    padding: 12px 4px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    justify-items: center;
   }
   /* No rotation on very small screens — prevents overflow */
   .insta-card,
-  .insta-card:nth-child(n) { --rot: 0deg; }
+  .insta-card:nth-child(n) {
+    --rot: 0deg !important;
+    width: 100% !important;
+    max-width: 100%;
+  }
+  .insta-card--wide { grid-column: span 2; width: 100% !important; }
+  .insta-card--tall,
+  .insta-card--reel { width: 100% !important; }
+  /* Username text scale */
+  .insta-username { font-size: 0.52rem; }
+}
+@media (max-width: 380px) {
+  .insta-wall-grid { gap: 10px 6px; padding: 12px 2px 24px; }
 }
 
 /* keep any leftover polaroid refs from breaking */
@@ -5127,7 +5181,44 @@ footer .logo-watermark {
             <div class="celeb-card-sub">Celebrations · Laughter · Food · Friends</div>
           </div>
         </div>
-
+<div class="celeb-card celeb-card--portrait">
+            <video autoplay muted loop playsinline>
+              <source src="extra-reel-3.mp4" type="video/mp4">
+            </video>
+            <div class="celeb-card-grain"></div>
+            <div class="celeb-card-overlay"></div>
+            <div class="celeb-card-glow"></div>
+            <div class="celeb-card-toplabel">
+              <span class="celeb-top-badge gold">🎥 New Reel</span>
+            </div>
+            <div class="celeb-reel-indicator">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="celeb-card-info">
+              <div class="celeb-event-tag">✨ New Year Planning</div>
+              <div class="celeb-card-title">Your Card Title</div>
+              <div class="celeb-card-sub">Your subtitle text here</div>
+            </div>
+          </div>
+    <div class="celeb-card celeb-card--portrait">
+            <video autoplay muted loop playsinline>
+              <source src="extra-reel-4.mp4" type="video/mp4">
+            </video>
+            <div class="celeb-card-grain"></div>
+            <div class="celeb-card-overlay"></div>
+            <div class="celeb-card-glow"></div>
+            <div class="celeb-card-toplabel">
+              <span class="celeb-top-badge gold">🎥 New Reel</span>
+            </div>
+            <div class="celeb-reel-indicator">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="celeb-card-info">
+              <div class="celeb-event-tag">✨ Your Tag</div>
+              <div class="celeb-card-title">Your Card Title</div>
+              <div class="celeb-card-sub">Your subtitle text here</div>
+            </div>
+          </div>
         <!--
           ══════════════════════════════════════════════════════
           ★  ADD MORE PORTRAIT CARDS HERE
