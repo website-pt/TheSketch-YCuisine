@@ -2883,104 +2883,46 @@ button,a{
    ✅ Works for ALL 14 categories + hero + global.
 ══════════════════════════════════════════════════════ */
 
-/* ── Auto-generate candidate paths for a folder ──────
-   Tries image-1 through image-N for all supported extensions.
-   Returns a flat array of all candidate paths.
-   Missing ones are silently dropped by makeImg's onerror.
-   MAX_IMAGES_PER_FOLDER: raise if you have more than 60 images */
+/* ══════════════════════════════════════════════════════
+   ⚡ INSTANT IMAGE SYSTEM — Zero probe, zero wait
+   ──────────────────────────────────────────────────────
+   Old approach: probe every image-1..60 × 5 extensions
+   = 300 HTTP requests per folder × 16 folders = 4,800
+   round-trips BEFORE any image could appear. Slow.
+
+   New approach: galleries build IMMEDIATELY using all
+   candidate paths. Each <img> is inserted right away.
+   If a file exists → it renders. If missing → onerror
+   hides the frame silently. No waiting, no probing.
+   Result: images appear as fast as GitHub can serve them.
+══════════════════════════════════════════════════════ */
+
 const MAX_IMAGES_PER_FOLDER = 60;
 const IMG_EXTS = ['jpg','jpeg','png','webp','avif'];
 
+/* Generate all candidate paths for a folder (used as pool) */
 function genPaths(folder) {
   const paths = [];
   for (let n = 1; n <= MAX_IMAGES_PER_FOLDER; n++) {
-    for (const ext of IMG_EXTS) {
-      paths.push(`images/${folder}/image-${n}.${ext}`);
-    }
+    /* Only use .jpg as the primary candidate — onerror in makeImg
+       handles fallback to placeholder. Using one extension per slot
+       avoids duplicate frames while keeping the pool large enough. */
+    paths.push(`images/${folder}/image-${n}.jpg`);
   }
   return paths;
 }
 
-/* ── Async loader: returns only the paths that actually load ──
-   FAST MODE: All image numbers are probed in PARALLEL (not sequentially).
-   Each number tries extensions in order (jpg first), resolves on first hit.
-   All numbers fire simultaneously → results in ~1 round-trip instead of N.
-── */
-function loadValidImages(folder) {
-  const byNum = {};
-  for (let n = 1; n <= MAX_IMAGES_PER_FOLDER; n++) {
-    byNum[n] = IMG_EXTS.map(ext => `images/${folder}/image-${n}.${ext}`);
-  }
-  const nums = Object.keys(byNum).map(Number).sort((a,b) => a-b);
-
-  /* For each image number, probe all extensions in parallel and pick the
-     first one that loads (lowest extension index = jpg wins over png etc.) */
-  function probeNum(n) {
-    return new Promise(resolve => {
-      const exts = byNum[n];
-      let settled = false;
-      let remaining = exts.length;
-      const results = new Array(exts.length).fill(null);
-
-      exts.forEach((src, i) => {
-        const img = new Image();
-        img.onload = () => {
-          results[i] = src;
-          remaining--;
-          if (!settled) {
-            /* Don't resolve yet — wait for all so we pick lowest index */
-            if (remaining === 0) {
-              settled = true;
-              /* Return first successful extension (preserves jpg > png priority) */
-              resolve(results.find(r => r !== null) || null);
-            }
-          }
-        };
-        img.onerror = () => {
-          remaining--;
-          if (remaining === 0 && !settled) {
-            settled = true;
-            resolve(results.find(r => r !== null) || null);
-          }
-        };
-        img.src = src;
-      });
-    });
-  }
-
-  /* Fire ALL numbers in parallel at once */
-  return Promise.all(nums.map(n => probeNum(n))).then(results => {
-    /* Filter out nulls and stop at first gap (3 consecutive misses) */
-    const valid = [];
-    let consecutiveMisses = 0;
-    for (let i = 0; i < results.length; i++) {
-      if (results[i]) {
-        valid.push(results[i]);
-        consecutiveMisses = 0;
-      } else {
-        consecutiveMisses++;
-        if (consecutiveMisses >= 3) break;
-      }
-    }
-    return valid;
-  });
-}
-
-/* ── Image pools — loaded async, then used to build UI ── */
+/* IMAGE_POOLS: pre-filled synchronously — no async needed */
 const IMAGE_POOLS = {};
 const ALL_FOLDERS = ['hero','beverages','appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts','global'];
 
-/* Load all folders in parallel, then trigger all gallery builds */
-const _poolsReady = Promise.all(
-  ALL_FOLDERS.map(folder =>
-    loadValidImages(folder).then(paths => {
-      IMAGE_POOLS[folder] = paths;
-    })
-  )
-).then(() => {
-  // Kick off all gallery builds once pools are ready
-  triggerGalleryBuilds();
+ALL_FOLDERS.forEach(folder => {
+  IMAGE_POOLS[folder] = genPaths(folder);
 });
+
+/* Build galleries immediately — no waiting for probes */
+/* Use requestAnimationFrame so DOM is ready */
+requestAnimationFrame(() => triggerGalleryBuilds());
 
 /* Convenience alias used by all gallery builders below */
 const heroImages       = () => IMAGE_POOLS['hero']       || [];
@@ -3034,30 +2976,16 @@ function shuffle(arr) {
   return a;
 }
 
-/* ── Get pool for a category — shuffled randomly each page load ── */
-/* ── Missing images are detected and silently skipped            ── */
-const _validatedPools = {}; // cache per-category after first validation
-
-async function validateImages(paths) {
-  const results = await Promise.all(paths.map(src =>
-    new Promise(resolve => {
-      const img = new Image();
-      img.onload  = () => resolve(src);
-      img.onerror = () => resolve(null);
-      img.src = src;
-    })
-  ));
-  return results.filter(Boolean);
-}
-
+/* ── Get pool for a category — shuffled randomly each page load ──
+   Capped at 10 per category: most restaurants have ≤10 images per section.
+   Raising this number increases 404 probes; lower = faster first paint. */
+const POOL_CAP = 10;
 function getPool(cat) {
-  const specific = IMAGES[cat] || [];
-  // Return shuffled immediately (missing images show placeholder, not empty frame)
-  // Validation runs async and updates pool for subsequent builds
-  return shuffle([...specific]);
+  const all = IMAGE_POOLS[cat] || [];
+  return shuffle([...all.slice(0, POOL_CAP)]);
 }
 
-/* ── Build <img> element — eager loading for fast display ── */
+/* ── Build <img> element — instant eager loading ── */
 function makeImg(src, alt='') {
   const img = document.createElement('img');
   img.src = src;
@@ -3066,44 +2994,21 @@ function makeImg(src, alt='') {
   img.fetchPriority = 'high';
   img.decoding = 'async';
   img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center center;display:block;';
-  // Smart focal point: after load, check aspect ratio
-  // Portrait images (taller than wide) → show top-center (face/top of dish)
-  // Landscape images (wider than tall) → show center (naturally fills frame)
-  // Square images → center
-  img.onload = function() {
-    const ratio = this.naturalWidth / this.naturalHeight;
-    if (ratio < 0.8) {
-      // Portrait: keep centered so full dish is visible
-      this.style.objectPosition = 'center center';
-    } else if (ratio > 1.5) {
-      // Wide landscape: center is fine
-      this.style.objectPosition = 'center center';
-    } else {
-      this.style.objectPosition = 'center center';
-    }
-  };
-  // Fallback: if local image is missing, render a premium placeholder
+  /* Try alternate extensions before giving up — handles .png/.webp/.jpeg files */
+  const FALLBACK_EXTS = ['jpeg','png','webp','avif'];
+  let fbIdx = 0;
   img.onerror = function() {
-    this.onerror = null;
-    // Replace broken img with a styled placeholder div
-    const ph = document.createElement('div');
-    ph.style.cssText = `
-      width:100%;height:100%;
-      background:linear-gradient(135deg,#141414 0%,#1e1a17 40%,#181410 100%);
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:10px;position:absolute;inset:0;
-    `;
-    ph.innerHTML = `
-      <div style="width:34px;height:34px;border:1.5px solid rgba(201,169,110,.45);border-radius:2px;display:flex;align-items:center;justify-content:center;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(201,169,110,.6)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-      </div>
-      <span style="font-family:'Jost',sans-serif;font-size:.28rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(201,169,110,.5);">Sketch-Y</span>
-    `;
-    if (this.parentElement) {
-      this.parentElement.style.position = 'relative';
-      this.parentElement.appendChild(ph);
-      this.style.display = 'none';
+    const base = img.src.replace(/\.[^.?#]+(\?.*)?$/, '');
+    if (fbIdx < FALLBACK_EXTS.length) {
+      img.src = base + '.' + FALLBACK_EXTS[fbIdx++];
+      return;
     }
+    /* All extensions exhausted — hide this frame silently */
+    this.onerror = null;
+    const cell = this.closest
+      ? this.closest('.mw-cell,.fg-cell,.sc-card,.sc-few-card,.polaroid,.hg-item,.aw-cell,.reel-frame,.vs-img-cell')
+      : this.parentElement;
+    if (cell) cell.style.display = 'none';
   };
   return img;
 }
@@ -3753,8 +3658,8 @@ function buildEditorialImg(imgDivId, catId) {
 
 /* ══════════════════════════════════════════════════════
    INIT ALL VISUAL SECTIONS
-   triggerGalleryBuilds() is called by _poolsReady (above)
-   once all image pools have been loaded asynchronously.
+   triggerGalleryBuilds() fires instantly via rAF — pools
+   are pre-filled synchronously, no async wait needed.
 ══════════════════════════════════════════════════════ */
 function triggerGalleryBuilds() {
   const ALL_CATS = ['beverages','appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts'];
