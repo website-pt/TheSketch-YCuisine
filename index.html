@@ -117,7 +117,7 @@ nav.scrolled {
 }
 .nav-links { display: flex; gap: 38px; list-style: none; align-items: center; }
 .nav-links a {
-  color: #333; text-decoration: none;
+  color: #111; text-decoration: none;
   font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
   transition: color 0.25s;
   font-weight: 500;
@@ -407,22 +407,28 @@ section { padding: 110px 60px; }
 .showcase-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: 280px 220px;
+  grid-template-rows: auto;
   gap: 3px;
 }
 .showcase-card {
   position: relative; overflow: hidden;
   background: #111;
+  aspect-ratio: 4 / 3;
 }
 .showcase-card--large {
   grid-column: 1; grid-row: 1 / 3;
+  aspect-ratio: 3 / 4;
 }
 .showcase-card--wide {
   grid-column: 2 / 4; grid-row: 2;
+  aspect-ratio: 16 / 7;
 }
 .showcase-img {
   position: absolute; inset: 0;
-  background-size: cover; background-position: center;
+  width: 100%; height: 100%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   transition: transform 0.6s ease;
 }
 .showcase-card:hover .showcase-img { transform: scale(1.07); }
@@ -472,13 +478,23 @@ section { padding: 110px 60px; }
 }
 .menu-card:hover { background: #1a1a1a; }
 .menu-card-img {
-  width: 100%; height: 160px;
-  background-size: cover; background-position: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   background-color: #1a1a1a;
   flex-shrink: 0;
   transition: transform 0.5s ease;
   position: relative;
   overflow: hidden;
+}
+/* <img> tags inside .menu-card-img — show full dish without cropping */
+.menu-card-img img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
 }
 .menu-card:hover .menu-card-img { transform: scale(1.04); }
 .menu-card-img-placeholder {
@@ -531,7 +547,7 @@ section { padding: 110px 60px; }
   color: rgba(255,255,255,0.75); border-radius: 2px; margin-top: 4px; width: fit-content;
 }
 .menu-cards.two-col { grid-template-columns: 1fr; }
-.menu-cards.two-col .menu-card-img { height: 200px; }
+.menu-cards.two-col .menu-card-img { aspect-ratio: 16 / 9; }
 /* Pizza size row */
 .pizza-sizes { display: flex; gap: 16px; margin-top: 4px; }
 .pizza-size-item { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: rgba(255,255,255,0.65); }
@@ -1558,7 +1574,7 @@ footer {
 }
 .social-links a:hover { border-color: var(--white); color: var(--white); }
 .footer-logo .logo-the { font-family: 'Josefin Sans', sans-serif; font-size: 0.5rem; letter-spacing: 0.5em; color: rgba(255,255,255,0.85); }
-.footer-logo .logo-sketchy { font-family: 'Josefin Sans', sans-serif; font-size: 1.6rem; font-style: italic; color: var(--white); }
+.footer-logo .logo-sketchy { font-family: 'Josefin Sans', sans-serif; font-size: 1.6rem; font-style: normal; color: var(--white); }
 .footer-logo .logo-sketchy span { color: rgba(255,255,255,0.88); }
 .footer-logo .logo-cuisine { font-family: 'Josefin Sans', sans-serif; font-size: 0.48rem; letter-spacing: 0.55em; color: rgba(255,255,255,0.85); }
 
@@ -1803,9 +1819,9 @@ body { -webkit-font-smoothing: antialiased; }
   .menu-cards { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
   .menu-tabs { flex-wrap: nowrap; overflow-x: auto; }
   .showcase-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
-  .showcase-card--large { grid-column: 1 / 3; grid-row: 1; height: 260px; }
-  .showcase-card { height: 200px; }
-  .showcase-card--wide { grid-column: 1 / 3; }
+  .showcase-card--large { grid-column: 1 / 3; grid-row: 1; aspect-ratio: 16 / 7; }
+  .showcase-card { aspect-ratio: 4 / 3; }
+  .showcase-card--wide { grid-column: 1 / 3; aspect-ratio: 16 / 7; }
   .celeb-block { grid-template-columns: 1fr; gap: 28px; }
   .celeb-block--right { direction: ltr; }
   .celeb-media-group { height: 300px; }
@@ -1834,8 +1850,8 @@ body { -webkit-font-smoothing: antialiased; }
   .showcase-grid { grid-template-columns: 1fr; }
   .showcase-card--large,
   .showcase-card--wide { grid-column: 1; }
-  .showcase-card { height: 210px; }
-  .showcase-card--large { height: 260px; }
+  .showcase-card { aspect-ratio: 4 / 3; }
+  .showcase-card--large { aspect-ratio: 16 / 9; }
 }
 
 @media (max-width: 480px) {
@@ -1854,7 +1870,7 @@ body { -webkit-font-smoothing: antialiased; }
   .about-img-stack { height: 280px; }
   .about-badge { font-size: 0.65rem; padding: 12px 16px; }
   .menu-cards { grid-template-columns: 1fr; }
-  .menu-cards.two-col .menu-card-img { height: 160px; }
+  .menu-cards.two-col .menu-card-img { aspect-ratio: 16 / 9; }
   .form-row { grid-template-columns: 1fr; }
   .footer-top { grid-template-columns: 1fr 1fr; gap: 22px; }
   .footer-brand { grid-column: 1 / -1; }
@@ -2233,16 +2249,15 @@ body { -webkit-font-smoothing: antialiased; }
 }
 
 /* ── Responsive ── */
-@media (max-width: 768px) {
-  #memory-wall { padding: 70px 16px !important; }
-  .mw-header-wrap { flex-direction: column; align-items: flex-start; }
-  .mw-header-right { align-items: flex-start; }
+
+/* ── Tablet (≤ 900px): tighten flex wrap, reduce rotations ── */
+@media (max-width: 900px) {
   .insta-wall-grid {
     gap: 10px 8px;
     padding: 16px 8px 24px;
     justify-content: center;
   }
-  /* Flatten rotations on small screens so nothing clips out of view */
+  /* Flatten rotations so nothing clips */
   .insta-card:nth-child(1)  { --rot: -2deg; }
   .insta-card:nth-child(2)  { --rot:  1.5deg; }
   .insta-card:nth-child(3)  { --rot: -1deg; }
@@ -2252,37 +2267,83 @@ body { -webkit-font-smoothing: antialiased; }
   .insta-card:nth-child(7)  { --rot: -2deg; }
   .insta-card:nth-child(8)  { --rot:  1.5deg; }
   .insta-card:nth-child(9)  { --rot: -1deg; }
-  /* Consistent card sizes on tablet */
-  .insta-card { --pol-w: clamp(130px, 42vw, 200px); }
-  .insta-card--tall { --pol-w: clamp(120px, 38vw, 188px); }
-  .insta-card--wide { --pol-w: clamp(150px, 48vw, 230px); }
-  .insta-card--reel { --pol-w: clamp(110px, 34vw, 165px); }
+  .insta-card { --pol-w: clamp(130px, 28vw, 210px); }
+  .insta-card--tall { --pol-w: clamp(120px, 24vw, 196px); }
+  .insta-card--wide { --pol-w: clamp(150px, 34vw, 260px); }
+  .insta-card--reel { --pol-w: clamp(100px, 20vw, 170px); }
 }
+
+@media (max-width: 768px) {
+  #memory-wall { padding: 70px 16px !important; }
+  .mw-header-wrap { flex-direction: column; align-items: flex-start; }
+  .mw-header-right { align-items: flex-start; }
+
+  /* ── Switch to CSS columns masonry — eliminates all vertical gaps ── */
+  .insta-wall-grid {
+    /* Reset flex */
+    display: block;
+    columns: 2;
+    column-gap: 10px;
+    padding: 12px 4px 24px;
+    max-width: 100%;
+  }
+  /* Each card becomes a column item — break-inside prevents splitting */
+  .insta-card,
+  .insta-card--tall,
+  .insta-card--wide,
+  .insta-card--reel {
+    display: inline-block;   /* required for column layout */
+    width: 100% !important;
+    max-width: 100%;
+    margin-bottom: 10px;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    /* Zero out rotations on tablet — prevents clipping in column context */
+    --rot: 0deg !important;
+  }
+  /* Keep individual child overrides for staggered angles if desired */
+  .insta-card:nth-child(1)  { --rot: -1deg !important; }
+  .insta-card:nth-child(2)  { --rot:  1deg !important; }
+  .insta-card:nth-child(3)  { --rot: -0.5deg !important; }
+  .insta-card:nth-child(4)  { --rot:  0.8deg !important; }
+  .insta-card:nth-child(5)  { --rot: -1deg !important; }
+  .insta-card:nth-child(6)  { --rot:  0.5deg !important; }
+  .insta-card:nth-child(7)  { --rot: -0.8deg !important; }
+  .insta-card:nth-child(8)  { --rot:  1deg !important; }
+  .insta-card:nth-child(9)  { --rot: -0.5deg !important; }
+  .insta-username { font-size: 0.52rem; }
+}
+
 @media (max-width: 480px) {
   #memory-wall { padding: 56px 12px !important; overflow-x: hidden; }
   .insta-wall-grid {
-    gap: 8px;
-    padding: 12px 4px 24px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-    justify-items: center;
+    columns: 2;
+    column-gap: 8px;
+    padding: 10px 2px 20px;
   }
-  /* No rotation on very small screens — prevents overflow */
   .insta-card,
   .insta-card:nth-child(n) {
     --rot: 0deg !important;
     width: 100% !important;
     max-width: 100%;
+    margin-bottom: 8px;
   }
-  .insta-card--wide { grid-column: span 2; width: 100% !important; }
-  .insta-card--tall,
-  .insta-card--reel { width: 100% !important; }
-  /* Username text scale */
-  .insta-username { font-size: 0.52rem; }
+  .insta-username { font-size: 0.50rem; }
 }
-@media (max-width: 380px) {
-  .insta-wall-grid { gap: 10px 6px; padding: 12px 2px 24px; }
+
+/* ── Very small phones: single column, no gaps possible ── */
+@media (max-width: 360px) {
+  .insta-wall-grid {
+    columns: 1;
+    column-gap: 0;
+    padding: 8px 0 16px;
+  }
+  .insta-card,
+  .insta-card:nth-child(n) {
+    --rot: 0deg !important;
+    width: 100% !important;
+    margin-bottom: 10px;
+  }
 }
 
 /* keep any leftover polaroid refs from breaking */
@@ -2358,11 +2419,21 @@ body { -webkit-font-smoothing: antialiased; }
 }
 .sig-card:hover { background: #151515; }
 .sig-card-img {
-  width: 100%; height: 220px;
-  background-size: cover; background-position: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   background-color: #1a1a1a;
   position: relative; overflow: hidden;
   transition: transform 0.6s ease;
+}
+/* <img> tags inside .sig-card-img */
+.sig-card-img img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
 }
 .sig-card:hover .sig-card-img { transform: scale(1.06); }
 /* Upload overlay for sig cards */
@@ -2413,7 +2484,7 @@ body { -webkit-font-smoothing: antialiased; }
 /* Card label overlay */
 .sig-card-overlay {
   position: absolute; bottom: 0; left: 0; right: 0;
-  height: 220px;
+  height: 60%;
   background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.1) 65%, transparent 100%);
   pointer-events: none;
 }
@@ -2465,16 +2536,18 @@ body { -webkit-font-smoothing: antialiased; }
 }
 .mhf-img-wrap {
   position: relative;
-  height: 340px;
-  overflow: hidden;
   width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
 }
 .mhf-img {
   width: 100%; height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
   display: block;
   transition: transform 0.7s ease;
   filter: brightness(0.88) contrast(1.05);
+  background: #0d0d0d;
 }
 .menu-hero-feature:hover .mhf-img { transform: scale(1.06); }
 .mhf-img-wrap::after {
@@ -2531,13 +2604,19 @@ body { -webkit-font-smoothing: antialiased; }
 }
 .menu-float-card:hover { background: #171717; }
 .menu-float-img-wrap {
-  height: 200px; overflow: hidden; position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden; position: relative;
+  background: #1a1a1a;
 }
 .menu-float-img {
   width: 100%; height: 100%;
-  object-fit: cover; display: block;
+  object-fit: contain;
+  object-position: center;
+  display: block;
   transition: transform 0.5s ease;
   filter: brightness(0.85) contrast(1.06);
+  background: #1a1a1a;
 }
 .menu-float-card:hover .menu-float-img { transform: scale(1.07); }
 .menu-float-img-wrap::after {
@@ -2597,24 +2676,24 @@ body { -webkit-font-smoothing: antialiased; }
 }
 
 @media (max-width: 768px) {
-  .mhf-img-wrap { height: 220px; }
+  .mhf-img-wrap { aspect-ratio: 4 / 3; }
   .mhf-body { padding: 22px 18px 26px; }
   .menu-float-row { grid-template-columns: 1fr 1fr; }
   .menu-list-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) {
   .menu-float-row { grid-template-columns: 1fr; }
-  .menu-float-img-wrap { height: 180px; }
+  .menu-float-img-wrap { aspect-ratio: 4 / 3; }
 }
 @media (max-width:768px) {
   .sig-tab { padding: 12px 18px; font-size: 0.62rem; }
   .sig-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-  .sig-card-img { height: 185px; }
+  .sig-card-img { aspect-ratio: 4 / 3; }
 }
 @media (max-width:480px) {
   .sig-grid { grid-template-columns: 1fr; }
   .sig-tab { padding: 10px 14px; font-size: 0.6rem; }
-  .sig-card-img { height: 200px; }
+  .sig-card-img { aspect-ratio: 4 / 3; }
 }
 
 /* ── iOS notch / safe area ──────────────────────── */
@@ -2680,13 +2759,23 @@ body { -webkit-font-smoothing: antialiased; }
   position: relative;
   margin: 52px 0 60px;
   overflow: hidden;
+  /* STABILITY FIX: guarantee section never collapses to zero height */
+  min-height: 180px;
+  /* VISIBILITY FIX: always visible — never hidden by reveal system */
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
 }
 .img-ribbon-track {
   display: flex;
   gap: 12px;
   width: max-content;
-  animation: ribbonScroll 28s linear infinite;
+  /* STABILITY FIX: use a safe initial animation; JS overrides with pixel-perfect version */
+  animation: ribbonScroll 60s linear infinite;
   will-change: transform;
+  /* STABILITY FIX: ensure track is always visible */
+  min-height: 160px;
+  align-items: stretch;
 }
 .img-ribbon-track:hover { animation-play-state: paused; }
 @keyframes ribbonScroll {
@@ -2710,6 +2799,8 @@ body { -webkit-font-smoothing: antialiased; }
   z-index: 10;
   border-color: rgba(200,169,110,0.3);
 }
+/* STABILITY FIX: ribbon images must always be eager — lazy loading in overflow:hidden
+   containers causes browsers to skip loading images that appear "off-screen" */
 .ribbon-img {
   position: absolute;
   inset: 0;
@@ -2722,11 +2813,15 @@ body { -webkit-font-smoothing: antialiased; }
 .ribbon-img-card:hover .ribbon-img { transform: scale(1.08); }
 .ribbon-img-fallback {
   display: none;
+  position: absolute;
+  inset: 0;
   width: 100%; height: 100%;
   background: linear-gradient(135deg, #141414, #1e1e1e);
   align-items: center; justify-content: center;
   font-size: 2.4rem;
   opacity: 0.5;
+  /* STABILITY FIX: ensure fallback shows correctly on all browsers */
+  box-sizing: border-box;
 }
 .ribbon-img-glow {
   position: absolute; inset: 0;
@@ -2764,10 +2859,63 @@ body { -webkit-font-smoothing: antialiased; }
   .ribbon-img-card { width: clamp(150px, 40vw, 200px); aspect-ratio: 4 / 3; height: auto; }
 }
 
-/* ══════════════════════════════════════════════════════════
-   GALLERY — STATIC LUXURY GRID  (1–3 images)
-   Used automatically when GALLERY_IMAGES has ≤ 3 entries.
-══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   GALLERY RIBBON — STABILITY OVERRIDES
+   These rules ensure the gallery NEVER disappears
+   on GitHub Pages, mobile, tablet, or desktop.
+   They override any conflicting rules from above.
+══════════════════════════════════════════════════ */
+.img-ribbon-wrap {
+  /* Always visible — never collapsed or hidden */
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  /* Minimum height guarantees section shows even during image load */
+  min-height: 180px;
+  overflow: hidden;
+  position: relative;
+  margin: 52px 0 60px;
+}
+/* Ensure the track itself is always shown */
+#imgRibbonTrack {
+  display: flex !important;
+  min-height: 160px;
+}
+/* Ribbon label never hidden */
+.ribbon-label {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* Ensure section containing the gallery is never overflow-hidden in a
+   way that clips the ribbon (parent sections must have overflow:visible
+   for the ribbon to scroll). The ribbon itself handles its own clipping. */
+#menu .img-ribbon-wrap {
+  /* z-index above section pseudo-elements */
+  z-index: 1;
+  position: relative;
+}
+/* MOBILE: ensure ribbon is visible and usable on small screens */
+@media (max-width: 768px) {
+  .img-ribbon-wrap {
+    min-height: 140px !important;
+    margin: 32px 0 40px !important;
+  }
+  #imgRibbonTrack {
+    min-height: 130px !important;
+  }
+}
+@media (max-width: 480px) {
+  .img-ribbon-wrap {
+    min-height: 120px !important;
+    margin: 24px 0 32px !important;
+  }
+  #imgRibbonTrack {
+    min-height: 110px !important;
+  }
+}
+/* ══ END GALLERY RIBBON STABILITY OVERRIDES ══ */
 .ribbon-static-grid {
   display: flex;
   gap: 16px;
@@ -3722,7 +3870,8 @@ video {
 .sig-panel:not(.chef-expanded) .menu-float-row .menu-float-card:first-child .menu-float-img-wrap {
   width: 100%;
   flex: 1;
-  min-height: 260px;
+  aspect-ratio: 4 / 3;
+  min-height: unset;
   height: auto;
   position: relative;
   overflow: hidden;
@@ -3793,7 +3942,8 @@ video {
 .chef-duo-wrap .menu-float-img-wrap {
   flex: 1;
   height: auto;
-  min-height: 220px;
+  aspect-ratio: 4 / 3;
+  min-height: unset;
 }
 
 /* "View Full Menu" CTA per category */
@@ -3866,7 +4016,7 @@ video {
   display: block;
 }
 .sig-panel.chef-expanded .chef-duo-wrap .menu-float-img-wrap {
-  height: 200px;
+  aspect-ratio: 4 / 3;
 }
 
 /* Subtle category label above each panel */
@@ -3963,6 +4113,83 @@ footer .logo-watermark {
   filter: brightness(100%) saturate(0%) invert(1);
   opacity: 0.10;
   mix-blend-mode: screen;
+}
+
+/* ══════════════════════════════════════════════════════
+   MENU IMAGE RESPONSIVENESS — Full dish visibility
+   All dish images show complete without cropping.
+   Aspect-ratio containers scale naturally on every device.
+══════════════════════════════════════════════════════ */
+
+/* ── Ribbon carousel images ── */
+.ribbon-img {
+  object-fit: cover;
+  object-position: center;
+  background: #0a0a0a;
+}
+
+/* ── menu-card grid: tighten columns on laptop ── */
+@media (max-width: 1280px) {
+  .menu-cards {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+/* ── Tablet (1024px): menu panel collapses, card grid tightens ── */
+@media (max-width: 1024px) {
+  .menu-cards {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  .sig-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+  .mhf-img-wrap { aspect-ratio: 16 / 9; }
+  .showcase-card--large { aspect-ratio: 4 / 3; }
+}
+
+/* ── Tablet portrait (900px) ── */
+@media (max-width: 900px) {
+  .chef-duo-wrap {
+    grid-template-columns: 1fr;
+  }
+  .menu-float-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .mhf-img-wrap { aspect-ratio: 4 / 3; }
+  .sig-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Mobile landscape / small tablet (768px) — already patched above ── */
+
+/* ── Mobile (600px) ── */
+@media (max-width: 600px) {
+  .menu-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .menu-card-img { aspect-ratio: 4 / 3; }
+  .sig-grid { grid-template-columns: repeat(2, 1fr); }
+  .sig-card-img { aspect-ratio: 4 / 3; }
+  .menu-float-row { grid-template-columns: repeat(2, 1fr); }
+  .menu-float-img-wrap { aspect-ratio: 4 / 3; }
+  .mhf-img-wrap { aspect-ratio: 4 / 3; }
+  .showcase-card,
+  .showcase-card--large,
+  .showcase-card--wide { aspect-ratio: 4 / 3; }
+}
+
+/* ── Mobile portrait (480px) — already patched above ── */
+
+/* ── Small mobile (380px) ── */
+@media (max-width: 380px) {
+  .menu-cards { grid-template-columns: 1fr; }
+  .sig-grid { grid-template-columns: 1fr; }
+  .menu-float-row { grid-template-columns: 1fr; }
+  .menu-card-img { aspect-ratio: 3 / 2; }
+  .sig-card-img { aspect-ratio: 3 / 2; }
+  .menu-float-img-wrap { aspect-ratio: 3 / 2; }
+  .mhf-img-wrap { aspect-ratio: 3 / 2; }
 }
 
 </style>
@@ -4163,7 +4390,7 @@ footer .logo-watermark {
       <p>What started as a simple conversation at home suddenly turned into a plan. Our parents joined in with their blessings and encouragement. And just like that, a family dream was born.</p>
       <p>Every step of this journey has been ours — built with our own hands, fueled by our passion, and guided by the belief that food is not just to satisfy hunger but to create memories.</p>
       <p>This restaurant is more than a place to dine; it is a reflection of our love, our hard work, and our dreams stitched together. It carries the warmth of family, the flavors of passion, and the spirit of togetherness that started at our very own dining table.</p>
-      <p style="margin-top:24px;font-family:'Josefin Sans',sans-serif;font-size:1.1rem;font-style:italic;color:rgba(0,0,0,0.92);font-weight:600;background:rgba(0,0,0,0.06);padding:14px 18px;border-left:3px solid rgba(0,0,0,0.88);">Welcome to our dream turned reality.<br>Welcome to The Sketch-Y Cuisine.</p>
+      <p style="margin-top:24px;font-family:'Josefin Sans',sans-serif;font-size:1.1rem;font-style:normal;color:rgba(0,0,0,0.92);font-weight:600;background:rgba(0,0,0,0.06);padding:14px 18px;border-left:3px solid rgba(0,0,0,0.88);">Welcome to our dream turned reality.<br>Welcome to The Sketch-Y Cuisine.</p>
     </div>
   </div>
 </section>
@@ -4213,7 +4440,7 @@ footer .logo-watermark {
     The gallery will loop all images seamlessly and automatically.
     ══════════════════════════════════════════════════════════════
   -->
-  <div class="img-ribbon-wrap reveal">
+  <div class="img-ribbon-wrap">
     <div class="img-ribbon-track" id="imgRibbonTrack">
       <!-- Populated dynamically by GALLERY_IMAGES array in script -->
     </div>
@@ -5512,7 +5739,7 @@ footer .logo-watermark {
 
       <div style="position:relative;z-index:1;">
         <!-- Logo mark -->
-        <div style="font-family:'Josefin Sans',sans-serif;font-size:1.6rem;font-style:italic;color:var(--white);margin-bottom:6px;line-height:1;">The Sketch<span style="color:rgba(255,255,255,0.85);">-Y</span></div>
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:1.6rem;font-style:normal;color:var(--white);margin-bottom:6px;line-height:1;">The Sketch<span style="color:rgba(255,255,255,0.85);">-Y</span></div>
         <div style="font-family:'Josefin Sans',sans-serif;font-size:0.48rem;letter-spacing:0.55em;color:rgba(255,255,255,0.82);text-transform:uppercase;margin-bottom:28px;">Cuisine · Ajmer</div>
 
         <!-- Address block -->
@@ -5887,11 +6114,12 @@ footer .logo-watermark {
     <div class="footer-col">
       <h4>Menu</h4>
       <ul>
-        <li><a href="#menu" onclick="setTimeout(function(){switchSigTab('beverages',document.querySelector('[onclick*=beverages]'))},400)">Beverages</a></li>
-        <li><a href="#menu" onclick="setTimeout(function(){switchSigTab('pizza',document.querySelector('[onclick*=pizza]'))},400)">Pizzas</a></li>
-        <li><a href="#menu" onclick="setTimeout(function(){switchSigTab('mains',document.querySelector('[onclick*=mains]'))},400)">Indian Mains</a></li>
-        <li><a href="#menu" onclick="setTimeout(function(){switchSigTab('asian',document.querySelector('[onclick*=asian]'))},400)">Tandoor</a></li>
-        <li><a href="#menu" onclick="setTimeout(function(){switchSigTab('pasta',document.querySelector('[onclick*=pasta]'))},400)">Sushi</a></li>
+        <li><a href="./menu-sketchy.html#cat-beverages">Beverages</a></li>
+        <li><a href="./menu-sketchy.html#cat-pizza">Pizzas</a></li>
+        <li><a href="./menu-sketchy.html#cat-mains">Indian Mains</a></li>
+        <li><a href="./menu-sketchy.html#cat-asian">Pan Asian</a></li>
+        <li><a href="./menu-sketchy.html#cat-pasta">Pasta</a></li>
+        <li><a href="./menu-sketchy.html#cat-starters">Starters</a></li>
       </ul>
     </div>
     <div class="footer-col">
@@ -6016,206 +6244,242 @@ const GALLERY_IMAGES = [
 /* ═══════════════════════════════════════════════════ */
 
 // ══════════════════════════════════════════════════════════════
-//  GALLERY RIBBON — Dynamic N-image system
-//  • 1–3 images  → static luxury grid layout (no strip)
-//  • 4+ images   → infinite seamless scrolling ribbon
-//  • No hardcoded limits — add/remove from GALLERY_IMAGES freely
+//  GALLERY RIBBON — Stable Dynamic N-image system
+//  FIXES:
+//  • DOMContentLoaded guard — never runs before DOM is ready
+//  • No lazy loading — eager load prevents overflow:hidden blank issue
+//  • Safe resize handler — no dangling styleEl reference errors
+//  • Path normalization — handles spaces, case, URL encoding
+//  • Full fallback system — broken images skip gracefully
+//  • Section never disappears — min-height + always-visible CSS
+//  • Tab/section always rendered — decoupled from image load success
 // ══════════════════════════════════════════════════════════════
-(function buildGalleryRibbon() {
-  const wrap  = document.querySelector('.img-ribbon-wrap');
-  const track = document.getElementById('imgRibbonTrack');
-  if (!track || !wrap) return;
+(function() {
+  // STABILITY FIX: wrap everything in DOMContentLoaded to ensure DOM is ready
+  function initGalleryRibbon() {
+    var wrap  = document.querySelector('.img-ribbon-wrap');
+    var track = document.getElementById('imgRibbonTrack');
 
-  const n = GALLERY_IMAGES.length;
-  if (n === 0) { wrap.style.display = 'none'; return; }
+    // STABILITY FIX: if elements not found, gallery section still shows (no crash)
+    if (!track || !wrap) {
+      console.warn('[Gallery] imgRibbonTrack or img-ribbon-wrap not found — skipping ribbon build');
+      return;
+    }
 
-  /* ── Helper: build one ribbon card ─────────────── */
-  function makeCard(item, ariaHidden) {
-    const card = document.createElement('div');
-    card.className = 'ribbon-img-card';
-    if (ariaHidden) card.setAttribute('aria-hidden', 'true');
+    // Always show the wrapper — never let it disappear
+    wrap.style.display = 'block';
+    wrap.style.opacity = '1';
+    wrap.style.visibility = 'visible';
 
-    const img = document.createElement('img');
-    img.src   = item.src;
-    img.alt   = ariaHidden ? '' : item.alt;
-    img.className = 'ribbon-img';
-    img.loading   = 'lazy';
-    img.onerror   = function() {
-      this.style.display = 'none';
-      this.nextElementSibling.style.display = 'flex';
-    };
+    var n = GALLERY_IMAGES.length;
 
-    const fallback = document.createElement('div');
-    fallback.className   = 'ribbon-img-fallback';
-    fallback.textContent = item.fallback || '🍽️';
+    // STABILITY FIX: even with 0 images, keep the section visible with a label
+    if (n === 0) {
+      track.style.display = 'none';
+      return;
+    }
 
-    const glow = document.createElement('div');
-    glow.className = 'ribbon-img-glow';
+    // STABILITY FIX: normalize image path — handle spaces and special chars
+    function normalizeSrc(src) {
+      if (!src) return '';
+      // If already a full URL (http/https/data:) leave as-is
+      if (/^(https?:|data:)/i.test(src)) return src;
+      // Split on last directory separator and encode only the filename
+      var lastSlash = src.lastIndexOf('/');
+      if (lastSlash === -1) {
+        // No directory prefix — just encode the filename
+        return encodeURIComponent(src).replace(/%2F/g, '/').replace(/%3A/g, ':').replace(/%2E/g, '.');
+      }
+      var dir  = src.substring(0, lastSlash + 1);
+      var file = src.substring(lastSlash + 1);
+      // Encode spaces and special chars in filename only — leave path separators alone
+      var encodedFile = file.replace(/ /g, '%20').replace(/\[/g, '%5B').replace(/\]/g, '%5D').replace(/#/g, '%23').replace(/\?/g, '%3F');
+      return dir + encodedFile;
+    }
 
-    card.appendChild(img);
-    card.appendChild(fallback);
-    card.appendChild(glow);
-    return card;
-  }
+    /* ── Helper: build one ribbon card ─────────────── */
+    function makeCard(item, ariaHidden) {
+      var card = document.createElement('div');
+      card.className = 'ribbon-img-card';
+      if (ariaHidden) card.setAttribute('aria-hidden', 'true');
 
-  /* ══════════════════════════════════════════════════
-     STATIC LUXURY GRID  (1 – 3 images)
-  ══════════════════════════════════════════════════ */
-  if (n <= 3) {
-    // Hide the scrolling track & fade edges
-    track.style.display = 'none';
-    wrap.querySelectorAll('.ribbon-fade-l, .ribbon-fade-r').forEach(el => el.style.display = 'none');
+      var img = document.createElement('img');
+      img.src   = normalizeSrc(item.src);
+      img.alt   = ariaHidden ? '' : (item.alt || '');
+      img.className = 'ribbon-img';
+      // STABILITY FIX: NEVER use lazy loading — images in overflow:hidden
+      // containers with width:max-content are invisible to browser's
+      // lazy-load intersection logic and will NEVER load on GitHub Pages
+      img.loading = 'eager';
+      img.decoding = 'async';
 
-    const grid = document.createElement('div');
-    grid.className = 'ribbon-static-grid ribbon-static-count-' + n;
-
-    GALLERY_IMAGES.forEach((item, idx) => {
-      const cell = document.createElement('div');
-      cell.className = 'ribbon-static-card';
-
-      const img = document.createElement('img');
-      img.src     = item.src;
-      img.alt     = item.alt;
-      img.loading = 'lazy';
-      img.onerror = function() {
-        this.style.display = 'none';
-        this.nextElementSibling.style.display = 'flex';
-      };
-
-      const fallback = document.createElement('div');
+      var fallback = document.createElement('div');
       fallback.className   = 'ribbon-img-fallback';
       fallback.textContent = item.fallback || '🍽️';
+      fallback.style.display = 'none';
 
-      const glow = document.createElement('div');
+      // STABILITY FIX: graceful per-image error — broken image shows emoji,
+      // rest of gallery CONTINUES rendering (no section disappearance)
+      img.onerror = function() {
+        try {
+          this.style.display = 'none';
+          fallback.style.display = 'flex';
+        } catch(e) {}
+        // Do NOT rethrow — isolate error so other images still load
+      };
+
+      var glow = document.createElement('div');
       glow.className = 'ribbon-img-glow';
 
-      const caption = document.createElement('div');
-      caption.className   = 'ribbon-static-caption';
-      caption.textContent = item.alt;
-
-      cell.appendChild(img);
-      cell.appendChild(fallback);
-      cell.appendChild(glow);
-      cell.appendChild(caption);
-
-      // For 3-image layout: card[0] goes directly, cards[1]+[2] go into right column
-      if (n === 3 && idx === 1) {
-        const rightCol = document.createElement('div');
-        rightCol.className = 'ribbon-static-right-col';
-        rightCol.appendChild(cell);
-        grid._rightCol = rightCol;
-        grid.appendChild(rightCol);
-      } else if (n === 3 && idx === 2) {
-        grid._rightCol.appendChild(cell);
-      } else {
-        grid.appendChild(cell);
-      }
-    });
-
-    wrap.insertBefore(grid, track);
-    return; // done — no scroll needed
-  }
-
-  /* ══════════════════════════════════════════════════
-     INFINITE SCROLL RIBBON  (4+ images)
-     Strategy: clone the set enough times so total
-     width fills at least 2 full viewports, then
-     translate -50% for a perfect seamless loop.
-  ══════════════════════════════════════════════════ */
-
-  // Approximate card width (px) + gap (px)
-  const CARD_W  = window.innerWidth <= 768 ? Math.max(150, Math.round(window.innerWidth * 0.4) + 12) : Math.min(300, Math.round(window.innerWidth * 0.22) + 12); // card + gap
-  const VP      = window.innerWidth;
-  const setW    = n * CARD_W; // px width of one set
-
-  // How many full copies do we need so that (copies × setW) >= 2 × VP?
-  // We need at least 2 identical halves so -50% translateX loops perfectly.
-  // Each "half" must be >= 1 viewport wide to avoid a visible gap.
-  const copiesPerHalf = Math.max(1, Math.ceil(VP / setW));
-  // We build 2 halves (orig + duplicate) for the CSS -50% trick
-  const totalCopies   = copiesPerHalf * 2;
-
-  for (let c = 0; c < totalCopies; c++) {
-    const isHidden = c >= copiesPerHalf; // second half is aria-hidden
-    GALLERY_IMAGES.forEach(item => track.appendChild(makeCard(item, isHidden)));
-  }
-
-  // One "loop segment" = copiesPerHalf × setW pixels
-  // CSS animation moves from 0 → -(copiesPerHalf × setW)px then snaps back
-  const segmentW = copiesPerHalf * setW;
-  // Override the CSS keyframe with an inline animation that uses exact px
-  // This avoids the -50% assumption and handles any N correctly.
-  const styleEl = document.createElement('style');
-  styleEl.textContent = `
-    @keyframes ribbonScrollDynamic {
-      0%   { transform: translateX(0); }
-      100% { transform: translateX(-${segmentW}px); }
+      card.appendChild(img);
+      card.appendChild(fallback);
+      card.appendChild(glow);
+      return card;
     }
-  `;
-  document.head.appendChild(styleEl);
 
-  // Speed: ~80px/s regardless of image count
-  const duration = Math.round(segmentW / 80);
-  track.style.animation = `ribbonScrollDynamic ${duration}s linear infinite`;
+    /* ══════════════════════════════════════════════════
+       STATIC LUXURY GRID  (1 – 3 images)
+    ══════════════════════════════════════════════════ */
+    if (n <= 3) {
+      // Hide the scrolling track & fade edges
+      track.style.display = 'none';
+      wrap.querySelectorAll('.ribbon-fade-l, .ribbon-fade-r').forEach(function(el) { el.style.display = 'none'; });
 
-  // Pause on hover (re-apply since we replaced animation)
-  track.addEventListener('mouseenter', () => track.style.animationPlayState = 'paused');
-  track.addEventListener('mouseleave', () => track.style.animationPlayState = 'running');
+      var grid = document.createElement('div');
+      grid.className = 'ribbon-static-grid ribbon-static-count-' + n;
 
-  // Re-run on resize (debounced) to recalc copies for new viewport width
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      // Simplest safe approach: just rebuild
+      GALLERY_IMAGES.forEach(function(item, idx) {
+        var cell = document.createElement('div');
+        cell.className = 'ribbon-static-card';
+
+        var img = document.createElement('img');
+        img.src     = normalizeSrc(item.src);
+        img.alt     = item.alt || '';
+        img.loading = 'eager'; // STABILITY FIX: eager load
+        img.decoding = 'async';
+        img.onerror = function() {
+          try {
+            this.style.display = 'none';
+            var fb = this.nextElementSibling;
+            if (fb) fb.style.display = 'flex';
+          } catch(e) {}
+        };
+
+        var fallback = document.createElement('div');
+        fallback.className   = 'ribbon-img-fallback';
+        fallback.textContent = item.fallback || '🍽️';
+        fallback.style.display = 'none';
+
+        var glow = document.createElement('div');
+        glow.className = 'ribbon-img-glow';
+
+        var caption = document.createElement('div');
+        caption.className   = 'ribbon-static-caption';
+        caption.textContent = item.alt || '';
+
+        cell.appendChild(img);
+        cell.appendChild(fallback);
+        cell.appendChild(glow);
+        cell.appendChild(caption);
+
+        // For 3-image layout: card[0] goes directly, cards[1]+[2] go into right column
+        if (n === 3 && idx === 1) {
+          var rightCol = document.createElement('div');
+          rightCol.className = 'ribbon-static-right-col';
+          rightCol.appendChild(cell);
+          grid._rightCol = rightCol;
+          grid.appendChild(rightCol);
+        } else if (n === 3 && idx === 2) {
+          if (grid._rightCol) grid._rightCol.appendChild(cell);
+          else grid.appendChild(cell);
+        } else {
+          grid.appendChild(cell);
+        }
+      });
+
+      wrap.insertBefore(grid, track);
+      return; // done — no scroll needed
+    }
+
+    /* ══════════════════════════════════════════════════
+       INFINITE SCROLL RIBBON  (4+ images)
+       STABILITY FIX: pixel-based animation, safe resize,
+       no stale styleEl references
+    ══════════════════════════════════════════════════ */
+
+    // STABILITY FIX: track the current dynamicStyle element so resize
+    // can safely remove it without dangling reference errors
+    var currentDynamicStyle = null;
+
+    function buildRibbon() {
+      // Clear previous content
       track.innerHTML = '';
-      document.head.removeChild(styleEl);
-      buildGalleryRibbonInner();
-    }, 300);
-  });
+
+      // Safely remove previous dynamic keyframe style
+      if (currentDynamicStyle && currentDynamicStyle.parentNode) {
+        try { currentDynamicStyle.parentNode.removeChild(currentDynamicStyle); } catch(e) {}
+      }
+      currentDynamicStyle = null;
+
+      var CARD_W = window.innerWidth <= 768
+        ? Math.max(150, Math.round(window.innerWidth * 0.4) + 12)
+        : Math.min(300, Math.round(window.innerWidth * 0.22) + 12);
+      var VP    = window.innerWidth;
+      var setW  = n * CARD_W;
+
+      // How many full copies needed so (copies × setW) >= 2 × VP?
+      var copiesPerHalf = Math.max(2, Math.ceil(VP / setW));
+      var totalCopies   = copiesPerHalf * 2;
+
+      for (var c = 0; c < totalCopies; c++) {
+        var isHidden = c >= copiesPerHalf;
+        GALLERY_IMAGES.forEach(function(item) {
+          track.appendChild(makeCard(item, isHidden));
+        });
+      }
+
+      // Compute exact pixel scroll distance
+      var segmentW = copiesPerHalf * setW;
+
+      // STABILITY FIX: unique keyframe name per build to avoid CSS cache collision
+      var kfName = 'ribbonScrollDyn' + Date.now();
+      var styleEl = document.createElement('style');
+      styleEl.textContent = '@keyframes ' + kfName + ' { 0%{transform:translateX(0)} 100%{transform:translateX(-' + segmentW + 'px)} }';
+      document.head.appendChild(styleEl);
+      currentDynamicStyle = styleEl;
+
+      // Speed: ~80px/s regardless of image count
+      var duration = Math.max(10, Math.round(segmentW / 80));
+      track.style.animation = kfName + ' ' + duration + 's linear infinite';
+      track.style.animationPlayState = 'running';
+    }
+
+    // Initial build
+    buildRibbon();
+
+    // STABILITY FIX: hover pause (re-apply after each rebuild)
+    track.addEventListener('mouseenter', function() { track.style.animationPlayState = 'paused'; });
+    track.addEventListener('mouseleave', function() { track.style.animationPlayState = 'running'; });
+
+    // STABILITY FIX: safe debounced resize — uses closure over buildRibbon
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        try { buildRibbon(); } catch(e) { console.warn('[Gallery] resize rebuild error:', e); }
+      }, 350);
+    });
+  }
+
+  // STABILITY FIX: always wait for DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGalleryRibbon);
+  } else {
+    // DOM already ready (script at bottom of body) — run on next tick
+    // to ensure all elements are fully parsed
+    setTimeout(initGalleryRibbon, 0);
+  }
 })();
-
-// named inner for resize rebuild
-function buildGalleryRibbonInner() {
-  const track = document.getElementById('imgRibbonTrack');
-  if (!track) return;
-  const n = GALLERY_IMAGES.length;
-  if (n <= 3) return; // static grid already rendered, no rebuild needed
-
-  function makeCard(item, ariaHidden) {
-    const card = document.createElement('div');
-    card.className = 'ribbon-img-card';
-    if (ariaHidden) card.setAttribute('aria-hidden', 'true');
-    const img = document.createElement('img');
-    img.src = item.src; img.alt = ariaHidden ? '' : item.alt;
-    img.className = 'ribbon-img'; img.loading = 'lazy';
-    img.onerror = function() { this.style.display='none'; this.nextElementSibling.style.display='flex'; };
-    const fallback = document.createElement('div');
-    fallback.className = 'ribbon-img-fallback'; fallback.textContent = item.fallback || '🍽️';
-    const glow = document.createElement('div'); glow.className = 'ribbon-img-glow';
-    card.appendChild(img); card.appendChild(fallback); card.appendChild(glow);
-    return card;
-  }
-
-  const CARD_W = window.innerWidth <= 768 ? Math.max(150, Math.round(window.innerWidth * 0.4) + 12) : Math.min(300, Math.round(window.innerWidth * 0.22) + 12);
-  const VP     = window.innerWidth;
-  const setW   = n * CARD_W;
-  const copiesPerHalf = Math.max(1, Math.ceil(VP / setW));
-  const totalCopies   = copiesPerHalf * 2;
-
-  for (let c = 0; c < totalCopies; c++) {
-    GALLERY_IMAGES.forEach(item => track.appendChild(makeCard(item, c >= copiesPerHalf)));
-  }
-
-  const segmentW = copiesPerHalf * setW;
-  const styleEl  = document.createElement('style');
-  styleEl.textContent = `@keyframes ribbonScrollDynamic { 0%{transform:translateX(0)} 100%{transform:translateX(-${segmentW}px)} }`;
-  document.head.appendChild(styleEl);
-  const duration = Math.round(segmentW / 80);
-  track.style.animation = `ribbonScrollDynamic ${duration}s linear infinite`;
-  track.addEventListener('mouseenter', () => track.style.animationPlayState = 'paused');
-  track.addEventListener('mouseleave', () => track.style.animationPlayState = 'running');
-}
 
 // Build slides + dots dynamically
 (function buildSlideshow() {
@@ -6405,6 +6669,13 @@ const obs = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.08 });
 reveals.forEach(r => obs.observe(r));
+// STABILITY FIX: safety timeout — if IntersectionObserver never fires
+// (GitHub Pages caching, layout timing), make all reveals visible after 3s
+setTimeout(function() {
+  document.querySelectorAll('.reveal:not(.visible)').forEach(function(el) {
+    el.classList.add('visible');
+  });
+}, 3000);
 
 /* ── Contact form → WhatsApp redirect ─────────── */
 function handleSubmit(btn) {
@@ -6913,6 +7184,73 @@ function triggerConfetti() {
   // Nav: black logo on light background  
   if (navCanvas)  processLogo('logo.jpg', [navCanvas],  'black');
 })();
+
+/* ══════════════════════════════════════════════════════════════════
+   ★  MENU CATEGORY DEEP-LINK HANDLER
+   ══════════════════════════════════════════════════════════════════
+   This block runs on BOTH index38.html (does nothing — no sig-tabs
+   here that match) AND menu-sketchy.html (activates the right tab).
+
+   HOW IT WORKS:
+   • Footer links use: ./menu-sketchy.html#cat-beverages
+   • On page load this script reads the hash and calls switchSigTab()
+     with the matching category ID, then smooth-scrolls to #menu.
+
+   COPY THIS ENTIRE BLOCK into menu-sketchy.html's <script> section.
+   ══════════════════════════════════════════════════════════════════ */
+(function handleMenuCategoryHash() {
+  /* Map of hash fragments → sig-tab category IDs */
+  var CAT_MAP = {
+    'cat-starters':  'starters',
+    'cat-mains':     'mains',
+    'cat-pasta':     'pasta',
+    'cat-pizza':     'pizza',
+    'cat-asian':     'asian',
+    'cat-beverages': 'beverages'
+  };
+
+  function activateCategoryFromHash(hash) {
+    /* Strip leading # */
+    var key = hash ? hash.replace(/^#/, '') : '';
+    var catId = CAT_MAP[key];
+    if (!catId) return; /* hash not a category link — do nothing */
+
+    /* Find the matching sig-tab button */
+    var btn = document.querySelector('[onclick*="switchSigTab(\'' + catId + '\'"]')
+           || document.querySelector('[onclick*="switchSigTab(\\\"' + catId + '\\\""]')
+           || document.querySelector('.sig-tab[onclick*="' + catId + '"]');
+
+    if (btn && typeof switchSigTab === 'function') {
+      switchSigTab(catId, btn);
+    }
+
+    /* Scroll to #menu section after a short paint delay */
+    var menuSection = document.getElementById('menu');
+    if (menuSection) {
+      setTimeout(function () {
+        menuSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    }
+  }
+
+  /* ── Run on initial page load ── */
+  if (window.location.hash) {
+    /* Small delay so the DOM (tabs, panels) is fully rendered */
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(function () { activateCategoryFromHash(window.location.hash); }, 80);
+      });
+    } else {
+      setTimeout(function () { activateCategoryFromHash(window.location.hash); }, 80);
+    }
+  }
+
+  /* ── Also handle in-page hash changes (back/forward navigation) ── */
+  window.addEventListener('hashchange', function () {
+    activateCategoryFromHash(window.location.hash);
+  });
+})();
+/* ══ END MENU CATEGORY DEEP-LINK HANDLER ══ */
 
 </script>
 </body>
