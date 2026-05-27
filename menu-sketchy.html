@@ -11,24 +11,11 @@
 <title>Menu — THE Sketch-Y Cuisine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
-
-<!-- ── Preload the first hero + beverages images so they appear instantly ── -->
-<link rel="preload" as="image" href="images/hero/image-1.jpg" fetchpriority="high">
-<link rel="preload" as="image" href="images/beverages/image-1.jpg" fetchpriority="high">
-<!-- Preload first image of every section for instant gallery renders -->
-<link rel="preload" as="image" href="images/appetizers/image-1.jpg">
-<link rel="preload" as="image" href="images/pasta/image-1.jpg">
-<link rel="preload" as="image" href="images/pizza/image-1.jpg">
-<link rel="preload" as="image" href="images/asian/image-1.jpg">
-<link rel="preload" as="image" href="images/sushi/image-1.jpg">
-<link rel="preload" as="image" href="images/sizzlers/image-1.jpg">
-<link rel="preload" as="image" href="images/tandoor/image-1.jpg">
-<link rel="preload" as="image" href="images/mains/image-1.jpg">
-<link rel="preload" as="image" href="images/rice/image-1.jpg">
-<link rel="preload" as="image" href="images/breads/image-1.jpg">
-<link rel="preload" as="image" href="images/soups/image-1.jpg">
-<link rel="preload" as="image" href="images/salads/image-1.jpg">
-<link rel="preload" as="image" href="images/desserts/image-1.jpg">
+<!-- Fast image delivery: pre-open connections to GitHub raw content CDN -->
+<link rel="dns-prefetch" href="https://raw.githubusercontent.com">
+<link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+<link rel="dns-prefetch" href="https://objects.githubusercontent.com">
+<link rel="preconnect" href="https://objects.githubusercontent.com" crossorigin>
 
 <style>
 /* ══════════════════════════════════════════════════════
@@ -2896,139 +2883,104 @@ button,a{
    ✅ Works for ALL 14 categories + hero + global.
 ══════════════════════════════════════════════════════ */
 
-/* ══════════════════════════════════════════════════════
-   SMART IMAGE LOADER — INSTANT ON REPEAT, FAST ON FIRST
-   ──────────────────────────────────────────────────────
-   FIRST VISIT : probes folders quickly (parallel, early-exit)
-                 → saves discovered paths to localStorage
-   ALL LATER VISITS : reads from localStorage instantly —
-                 zero HTTP probe requests, galleries render
-                 on first paint for every category.
-   AUTO-REFRESH: cache refreshes every 24 hours, or when
-                 you add images (it detects new ones silently).
-══════════════════════════════════════════════════════ */
+/* ── Auto-generate candidate paths for a folder ──────
+   Tries image-1 through image-N for all supported extensions.
+   Returns a flat array of all candidate paths.
+   Missing ones are silently dropped by makeImg's onerror.
+   MAX_IMAGES_PER_FOLDER: raise if you have more than 60 images */
+const MAX_IMAGES_PER_FOLDER = 60;
+const IMG_EXTS = ['jpg','jpeg','png','webp','avif'];
 
-const IMAGE_POOLS  = {};
-const ALL_FOLDERS  = ['hero','beverages','appetizers','pasta','pizza','asian',
-                      'sushi','sizzlers','tandoor','mains','rice','breads',
-                      'soups','salads','desserts','global'];
-const CACHE_KEY    = 'sketchy_img_cache_v2';
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
-const MAX_PROBE    = 20;   // max images per folder to probe on first visit
-const PROBE_EXTS   = ['jpg','jpeg','png','webp'];
-
-/* ── Read cache from localStorage ── */
-function _readCache() {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const { ts, pools } = JSON.parse(raw);
-    if (Date.now() - ts > CACHE_TTL_MS) return null; // expired
-    return pools;
-  } catch(e) { return null; }
-}
-
-/* ── Write cache to localStorage ── */
-function _writeCache(pools) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), pools }));
-  } catch(e) {}
-}
-
-/* ── Probe ONE folder — parallel slots, early-exit on 2 consecutive misses ── */
-function _probeFolder(folder) {
-  return new Promise(resolve => {
-    const results = new Array(MAX_PROBE).fill(null);
-    let   done    = 0;
-
-    function finish() {
-      const valid = [];
-      for (let i = 0; i < results.length; i++) {
-        if (results[i]) valid.push(results[i]);
-        if (!results[i] && !results[i+1]) break; // stop at 2 consecutive misses
-      }
-      resolve(valid);
+function genPaths(folder) {
+  const paths = [];
+  for (let n = 1; n <= MAX_IMAGES_PER_FOLDER; n++) {
+    for (const ext of IMG_EXTS) {
+      paths.push(`images/${folder}/image-${n}.${ext}`);
     }
-
-    for (let i = 0; i < MAX_PROBE; i++) {
-      (function(idx) {
-        let found = false, tried = 0;
-        PROBE_EXTS.forEach(ext => {
-          const src = `images/${folder}/image-${idx+1}.${ext}`;
-          const im  = new Image();
-          im.onload = () => {
-            if (!found) { found = true; results[idx] = src; }
-            if (++tried === PROBE_EXTS.length) { if (++done === MAX_PROBE) finish(); }
-          };
-          im.onerror = () => {
-            if (++tried === PROBE_EXTS.length) { if (++done === MAX_PROBE) finish(); }
-          };
-          im.src = src;
-        });
-      })(i);
-    }
-  });
+  }
+  return paths;
 }
 
-/* ── Main loader ── */
-const _poolsReady = (function() {
-  const cached = _readCache();
+/* ── Async loader: returns only the paths that actually load ──
+   FAST MODE: All image numbers are probed in PARALLEL (not sequentially).
+   Each number tries extensions in order (jpg first), resolves on first hit.
+   All numbers fire simultaneously → results in ~1 round-trip instead of N.
+── */
+function loadValidImages(folder) {
+  const byNum = {};
+  for (let n = 1; n <= MAX_IMAGES_PER_FOLDER; n++) {
+    byNum[n] = IMG_EXTS.map(ext => `images/${folder}/image-${n}.${ext}`);
+  }
+  const nums = Object.keys(byNum).map(Number).sort((a,b) => a-b);
 
-  if (cached) {
-    /* ✅ CACHE HIT — instant, zero network probes */
-    ALL_FOLDERS.forEach(f => { IMAGE_POOLS[f] = cached[f] || []; });
-    /* Build galleries on next microtask (DOM must be parsed) */
-    return Promise.resolve().then(() => {
-      triggerGalleryBuilds();
-      /* Silently refresh cache in background after 5 s so new images appear next visit */
-      setTimeout(_refreshCache, 5000);
+  /* For each image number, probe all extensions in parallel and pick the
+     first one that loads (lowest extension index = jpg wins over png etc.) */
+  function probeNum(n) {
+    return new Promise(resolve => {
+      const exts = byNum[n];
+      let settled = false;
+      let remaining = exts.length;
+      const results = new Array(exts.length).fill(null);
+
+      exts.forEach((src, i) => {
+        const img = new Image();
+        img.onload = () => {
+          results[i] = src;
+          remaining--;
+          if (!settled) {
+            /* Don't resolve yet — wait for all so we pick lowest index */
+            if (remaining === 0) {
+              settled = true;
+              /* Return first successful extension (preserves jpg > png priority) */
+              resolve(results.find(r => r !== null) || null);
+            }
+          }
+        };
+        img.onerror = () => {
+          remaining--;
+          if (remaining === 0 && !settled) {
+            settled = true;
+            resolve(results.find(r => r !== null) || null);
+          }
+        };
+        img.src = src;
+      });
     });
   }
 
-  /* ❌ NO CACHE — first visit or expired: probe all folders in parallel */
-  /* Show hero + beverages first so above-fold content appears fast */
-  const PRIORITY = ['hero','beverages'];
-  const REST      = ALL_FOLDERS.filter(f => !PRIORITY.includes(f));
-
-  return Promise.all(
-    PRIORITY.map(f => _probeFolder(f).then(paths => { IMAGE_POOLS[f] = paths; }))
-  ).then(() => {
-    /* Above-fold ready — render immediately */
-    triggerGalleryBuilds();
-    /* Probe remaining folders in parallel, rebuild each as it arrives */
-    REST.forEach(f =>
-      _probeFolder(f).then(paths => {
-        IMAGE_POOLS[f] = paths;
-        buildShowcaseBanner(f);
-        buildMasonryWall(f);
-        /* Save full cache once all folders done */
-        if (ALL_FOLDERS.every(x => IMAGE_POOLS[x] !== undefined)) {
-          _writeCache(IMAGE_POOLS);
-        }
-      })
-    );
-  });
-})();
-
-/* ── Background cache refresh — runs silently after page is fully loaded ── */
-function _refreshCache() {
-  Promise.all(
-    ALL_FOLDERS.map(f => _probeFolder(f).then(paths => ({ f, paths })))
-  ).then(results => {
-    let changed = false;
-    results.forEach(({ f, paths }) => {
-      const old = (IMAGE_POOLS[f] || []).join('|');
-      const nw  = paths.join('|');
-      if (old !== nw) {
-        IMAGE_POOLS[f] = paths;
-        buildShowcaseBanner(f);
-        buildMasonryWall(f);
-        changed = true;
+  /* Fire ALL numbers in parallel at once */
+  return Promise.all(nums.map(n => probeNum(n))).then(results => {
+    /* Filter out nulls and stop at first gap (3 consecutive misses) */
+    const valid = [];
+    let consecutiveMisses = 0;
+    for (let i = 0; i < results.length; i++) {
+      if (results[i]) {
+        valid.push(results[i]);
+        consecutiveMisses = 0;
+      } else {
+        consecutiveMisses++;
+        if (consecutiveMisses >= 3) break;
       }
-    });
-    _writeCache(IMAGE_POOLS); // always update timestamp
+    }
+    return valid;
   });
 }
+
+/* ── Image pools — loaded async, then used to build UI ── */
+const IMAGE_POOLS = {};
+const ALL_FOLDERS = ['hero','beverages','appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts','global'];
+
+/* Load all folders in parallel, then trigger all gallery builds */
+const _poolsReady = Promise.all(
+  ALL_FOLDERS.map(folder =>
+    loadValidImages(folder).then(paths => {
+      IMAGE_POOLS[folder] = paths;
+    })
+  )
+).then(() => {
+  // Kick off all gallery builds once pools are ready
+  triggerGalleryBuilds();
+});
 
 /* Convenience alias used by all gallery builders below */
 const heroImages       = () => IMAGE_POOLS['hero']       || [];
@@ -3105,16 +3057,14 @@ function getPool(cat) {
   return shuffle([...specific]);
 }
 
-/* ── Build <img> element — eager for first/hero images, lazy for rest ── */
-function makeImg(src, alt='', eager=false) {
+/* ── Build <img> element — eager loading for fast display ── */
+function makeImg(src, alt='') {
   const img = document.createElement('img');
   img.src = src;
   img.alt = alt;
-  /* Above-fold images (hero, first showcase frame): load immediately.
-     Everything else: lazy-load so the page isn't blocked. */
-  img.loading  = eager ? 'eager' : 'lazy';
-  img.decoding = eager ? 'auto'  : 'async';
-  if (eager) img.setAttribute('fetchpriority', 'high');
+  img.loading = 'eager';
+  img.fetchPriority = 'high';
+  img.decoding = 'async';
   img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center center;display:block;';
   // Smart focal point: after load, check aspect ratio
   // Portrait images (taller than wide) → show top-center (face/top of dish)
@@ -3492,9 +3442,7 @@ function buildShowcaseBanner(catId) {
       <div class="sc-overlay"></div>
       <div class="sc-label">Sketch-Y Kitchen</div>
     `;
-    /* First card of the default visible section (beverages) loads eagerly */
-    const isFirstCard = (i === 0 && catId === 'beverages');
-    card.insertBefore(makeImg(src, '', isFirstCard), card.firstChild);
+    card.insertBefore(makeImg(src), card.firstChild);
     track.appendChild(card);
     oneSetWidth += (CARD_PX[sizeClass] || 200) + GAP_PX;
   });
@@ -3551,9 +3499,8 @@ function buildCinematicSlider() {
     const img = document.createElement('img');
     img.src = slide.src;
     img.alt = '';
-    img.loading  = i === 0 ? 'eager' : 'lazy';
-    img.decoding = i === 0 ? 'auto'  : 'async';
-    if (i === 0) img.setAttribute('fetchpriority', 'high');
+    img.loading = i === 0 ? 'eager' : 'lazy';
+    img.decoding = 'async';
     // Fallback: if slider image missing, show cinematic dark gradient
     img.onerror = function() {
       this.onerror = null;
@@ -3639,9 +3586,8 @@ function buildHeroBgReel() {
     const img = document.createElement('img');
     img.src = src;
     img.alt = '';
-    img.loading  = i === 0 ? 'eager' : 'lazy';
-    img.decoding = i === 0 ? 'auto'  : 'async';
-    if (i === 0) img.setAttribute('fetchpriority', 'high');
+    img.loading = i === 0 ? 'eager' : 'lazy';
+    img.decoding = 'async';
     img.onerror = function() {
       this.style.display = 'none';
       slide.style.background = 'linear-gradient(135deg,#0a0a0a 0%,#1a1210 100%)';
