@@ -2421,17 +2421,16 @@ body { -webkit-font-smoothing: antialiased; }
 .sig-card-img {
   width: 100%;
   aspect-ratio: 4 / 3;
-  background-size: contain;
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: #1a1a1a;
   position: relative; overflow: hidden;
   transition: transform 0.6s ease;
 }
 /* <img> tags inside .sig-card-img */
 .sig-card-img img {
   width: 100%; height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   display: block;
 }
@@ -2542,12 +2541,11 @@ body { -webkit-font-smoothing: antialiased; }
 }
 .mhf-img {
   width: 100%; height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   display: block;
   transition: transform 0.7s ease;
   filter: brightness(0.88) contrast(1.05);
-  background: #0d0d0d;
 }
 .menu-hero-feature:hover .mhf-img { transform: scale(1.06); }
 .mhf-img-wrap::after {
@@ -2607,16 +2605,14 @@ body { -webkit-font-smoothing: antialiased; }
   width: 100%;
   aspect-ratio: 4 / 3;
   overflow: hidden; position: relative;
-  background: #1a1a1a;
 }
 .menu-float-img {
   width: 100%; height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   display: block;
   transition: transform 0.5s ease;
   filter: brightness(0.85) contrast(1.06);
-  background: #1a1a1a;
 }
 .menu-float-card:hover .menu-float-img { transform: scale(1.07); }
 .menu-float-img-wrap::after {
@@ -3875,7 +3871,6 @@ video {
   height: auto;
   position: relative;
   overflow: hidden;
-  background: #1a1a1a;
 }
 .sig-panel:not(.chef-expanded) .menu-float-row .menu-float-card:first-child .menu-float-img-wrap .menu-float-img {
   position: absolute;
@@ -4799,10 +4794,10 @@ footer .logo-watermark {
           <div class="mhf-badge">House Special</div>
         </div>
         <div class="mhf-body">
-          <span class="mhf-cat">Cold Brews &amp; Frappes</span>
-          <div class="mhf-name">Brownie Frappe</div>
-          <div class="mhf-desc">Blended cold coffee with fudge brownie bits, chocolate drizzle &amp; fresh whipped cream</div>
-          <div class="mhf-price">₹ 239</div>
+          <span class="mhf-cat">&amp; </span>
+          <div class="mhf-name">Cappuccino</div>
+          <div class="mhf-desc"></div>
+          <div class="mhf-price">₹ 159</div>
         </div>
       </div>
       <div class="menu-float-row">
