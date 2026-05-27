@@ -15,6 +15,20 @@
 <!-- ── Preload the first hero + beverages images so they appear instantly ── -->
 <link rel="preload" as="image" href="images/hero/image-1.jpg" fetchpriority="high">
 <link rel="preload" as="image" href="images/beverages/image-1.jpg" fetchpriority="high">
+<!-- Preload first image of every section for instant gallery renders -->
+<link rel="preload" as="image" href="images/appetizers/image-1.jpg">
+<link rel="preload" as="image" href="images/pasta/image-1.jpg">
+<link rel="preload" as="image" href="images/pizza/image-1.jpg">
+<link rel="preload" as="image" href="images/asian/image-1.jpg">
+<link rel="preload" as="image" href="images/sushi/image-1.jpg">
+<link rel="preload" as="image" href="images/sizzlers/image-1.jpg">
+<link rel="preload" as="image" href="images/tandoor/image-1.jpg">
+<link rel="preload" as="image" href="images/mains/image-1.jpg">
+<link rel="preload" as="image" href="images/rice/image-1.jpg">
+<link rel="preload" as="image" href="images/breads/image-1.jpg">
+<link rel="preload" as="image" href="images/soups/image-1.jpg">
+<link rel="preload" as="image" href="images/salads/image-1.jpg">
+<link rel="preload" as="image" href="images/desserts/image-1.jpg">
 
 <style>
 /* ══════════════════════════════════════════════════════
@@ -2882,116 +2896,139 @@ button,a{
    ✅ Works for ALL 14 categories + hero + global.
 ══════════════════════════════════════════════════════ */
 
-/* ── Auto-generate candidate paths for a folder ──────
-   MAX_IMAGES_PER_FOLDER: maximum images expected per folder.
-   Keep this close to your real image count — lower = faster probe. */
-const MAX_IMAGES_PER_FOLDER = 12;
-/* Priority extensions first — reduces total requests dramatically.
-   jpg/jpeg/png/webp covers virtually all use-cases. */
-const IMG_EXTS = ['jpg', 'jpeg', 'png', 'webp'];
+/* ══════════════════════════════════════════════════════
+   SMART IMAGE LOADER — INSTANT ON REPEAT, FAST ON FIRST
+   ──────────────────────────────────────────────────────
+   FIRST VISIT : probes folders quickly (parallel, early-exit)
+                 → saves discovered paths to localStorage
+   ALL LATER VISITS : reads from localStorage instantly —
+                 zero HTTP probe requests, galleries render
+                 on first paint for every category.
+   AUTO-REFRESH: cache refreshes every 24 hours, or when
+                 you add images (it detects new ones silently).
+══════════════════════════════════════════════════════ */
 
-function genPaths(folder) {
-  const paths = [];
-  for (let n = 1; n <= MAX_IMAGES_PER_FOLDER; n++) {
-    for (const ext of IMG_EXTS) {
-      paths.push(`images/${folder}/image-${n}.${ext}`);
-    }
-  }
-  return paths;
+const IMAGE_POOLS  = {};
+const ALL_FOLDERS  = ['hero','beverages','appetizers','pasta','pizza','asian',
+                      'sushi','sizzlers','tandoor','mains','rice','breads',
+                      'soups','salads','desserts','global'];
+const CACHE_KEY    = 'sketchy_img_cache_v2';
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const MAX_PROBE    = 20;   // max images per folder to probe on first visit
+const PROBE_EXTS   = ['jpg','jpeg','png','webp'];
+
+/* ── Read cache from localStorage ── */
+function _readCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { ts, pools } = JSON.parse(raw);
+    if (Date.now() - ts > CACHE_TTL_MS) return null; // expired
+    return pools;
+  } catch(e) { return null; }
 }
 
-/* ── Ultra-fast parallel image prober ──────────────────
-   KEY OPTIMISATION: fires slots in small batches of 4.
-   As soon as any batch returns ALL misses, we stop early
-   — no need to probe up to slot 12 if slots 3+4 both fail.
-   For each slot, extensions race in parallel; first to load
-   wins and cancels the rest (by ignoring late callbacks).
-   Typical result on GitHub Pages: images appear in < 1 s.  */
-function loadValidImages(folder) {
+/* ── Write cache to localStorage ── */
+function _writeCache(pools) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), pools }));
+  } catch(e) {}
+}
+
+/* ── Probe ONE folder — parallel slots, early-exit on 2 consecutive misses ── */
+function _probeFolder(folder) {
   return new Promise(resolve => {
-    const results = new Array(MAX_IMAGES_PER_FOLDER).fill(null);
-    const BATCH   = 4;   // probe 4 slots at a time
-    let   batchStart = 0;
-
-    function probeSlot(i) {
-      return new Promise(slotDone => {
-        if (i >= MAX_IMAGES_PER_FOLDER) { slotDone(); return; }
-        const exts  = IMG_EXTS.slice();
-        let   found = false;
-        let   tried = 0;
-
-        exts.forEach(ext => {
-          const src = `images/${folder}/image-${i + 1}.${ext}`;
-          const img = new Image();
-          img.onload = () => {
-            if (!found) { found = true; results[i] = src; }
-            if (++tried === exts.length) slotDone();
-          };
-          img.onerror = () => {
-            if (++tried === exts.length) slotDone();
-          };
-          img.src = src;
-        });
-      });
-    }
-
-    function runBatch() {
-      const slots = [];
-      for (let k = 0; k < BATCH && batchStart + k < MAX_IMAGES_PER_FOLDER; k++) {
-        slots.push(probeSlot(batchStart + k));
-      }
-      if (!slots.length) { finish(); return; }
-
-      Promise.all(slots).then(() => {
-        // Check if every slot in this batch missed — if so, stop early
-        const allMiss = slots.every((_, k) => !results[batchStart + k]);
-        batchStart += BATCH;
-        if (allMiss) { finish(); return; }
-        runBatch(); // probe next batch
-      });
-    }
+    const results = new Array(MAX_PROBE).fill(null);
+    let   done    = 0;
 
     function finish() {
       const valid = [];
       for (let i = 0; i < results.length; i++) {
         if (results[i]) valid.push(results[i]);
-        // Stop collecting at first gap of 2+ consecutive misses
-        if (!results[i] && !results[i + 1]) break;
+        if (!results[i] && !results[i+1]) break; // stop at 2 consecutive misses
       }
       resolve(valid);
     }
 
-    runBatch();
+    for (let i = 0; i < MAX_PROBE; i++) {
+      (function(idx) {
+        let found = false, tried = 0;
+        PROBE_EXTS.forEach(ext => {
+          const src = `images/${folder}/image-${idx+1}.${ext}`;
+          const im  = new Image();
+          im.onload = () => {
+            if (!found) { found = true; results[idx] = src; }
+            if (++tried === PROBE_EXTS.length) { if (++done === MAX_PROBE) finish(); }
+          };
+          im.onerror = () => {
+            if (++tried === PROBE_EXTS.length) { if (++done === MAX_PROBE) finish(); }
+          };
+          im.src = src;
+        });
+      })(i);
+    }
   });
 }
 
-/* ── Image pools — loaded async, then used to build UI ── */
-const IMAGE_POOLS = {};
-const ALL_FOLDERS = ['hero','beverages','appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts','global'];
+/* ── Main loader ── */
+const _poolsReady = (function() {
+  const cached = _readCache();
 
-/* Load hero + beverages first (above-fold), then all others in parallel.
-   This means the visible images appear in the first probe wave,
-   while below-fold folders load concurrently in the background. */
-const PRIORITY_FOLDERS = ['hero', 'beverages'];
-const REST_FOLDERS     = ALL_FOLDERS.filter(f => !PRIORITY_FOLDERS.includes(f));
+  if (cached) {
+    /* ✅ CACHE HIT — instant, zero network probes */
+    ALL_FOLDERS.forEach(f => { IMAGE_POOLS[f] = cached[f] || []; });
+    /* Build galleries on next microtask (DOM must be parsed) */
+    return Promise.resolve().then(() => {
+      triggerGalleryBuilds();
+      /* Silently refresh cache in background after 5 s so new images appear next visit */
+      setTimeout(_refreshCache, 5000);
+    });
+  }
 
-const _poolsReady = Promise.all(
-  PRIORITY_FOLDERS.map(folder =>
-    loadValidImages(folder).then(paths => { IMAGE_POOLS[folder] = paths; })
-  )
-).then(() => {
-  // Above-fold galleries ready — build immediately so images show fast
-  triggerGalleryBuilds();
-  // Then load remaining folders in background — rebuild their galleries when ready
-  REST_FOLDERS.forEach(folder =>
-    loadValidImages(folder).then(paths => {
-      IMAGE_POOLS[folder] = paths;
-      // Re-build showcase + masonry for this category now its images are available
-      buildShowcaseBanner(folder);
-      buildMasonryWall(folder);
-    })
-  );
-});
+  /* ❌ NO CACHE — first visit or expired: probe all folders in parallel */
+  /* Show hero + beverages first so above-fold content appears fast */
+  const PRIORITY = ['hero','beverages'];
+  const REST      = ALL_FOLDERS.filter(f => !PRIORITY.includes(f));
+
+  return Promise.all(
+    PRIORITY.map(f => _probeFolder(f).then(paths => { IMAGE_POOLS[f] = paths; }))
+  ).then(() => {
+    /* Above-fold ready — render immediately */
+    triggerGalleryBuilds();
+    /* Probe remaining folders in parallel, rebuild each as it arrives */
+    REST.forEach(f =>
+      _probeFolder(f).then(paths => {
+        IMAGE_POOLS[f] = paths;
+        buildShowcaseBanner(f);
+        buildMasonryWall(f);
+        /* Save full cache once all folders done */
+        if (ALL_FOLDERS.every(x => IMAGE_POOLS[x] !== undefined)) {
+          _writeCache(IMAGE_POOLS);
+        }
+      })
+    );
+  });
+})();
+
+/* ── Background cache refresh — runs silently after page is fully loaded ── */
+function _refreshCache() {
+  Promise.all(
+    ALL_FOLDERS.map(f => _probeFolder(f).then(paths => ({ f, paths })))
+  ).then(results => {
+    let changed = false;
+    results.forEach(({ f, paths }) => {
+      const old = (IMAGE_POOLS[f] || []).join('|');
+      const nw  = paths.join('|');
+      if (old !== nw) {
+        IMAGE_POOLS[f] = paths;
+        buildShowcaseBanner(f);
+        buildMasonryWall(f);
+        changed = true;
+      }
+    });
+    _writeCache(IMAGE_POOLS); // always update timestamp
+  });
+}
 
 /* Convenience alias used by all gallery builders below */
 const heroImages       = () => IMAGE_POOLS['hero']       || [];
