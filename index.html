@@ -701,12 +701,24 @@ section { padding: 110px 60px; }
 @media (max-width: 900px) {
   .food-reel-strip {
     grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    align-items: stretch;
+  }
+  .food-reel-card {
+    aspect-ratio: 4/3;
+    width: 100%;
   }
 }
 @media (max-width: 520px) {
   .food-reel-strip {
     grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
     gap: 6px;
+    align-items: stretch;
+  }
+  .food-reel-card {
+    aspect-ratio: 4/3;
+    width: 100%;
   }
   .food-reel-label { font-size: 0.82rem; }
 }
