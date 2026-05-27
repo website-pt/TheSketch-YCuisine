@@ -562,172 +562,134 @@ button,a{
   width: 100%;
 }
 
-/* ── LOW-IMAGE PREMIUM CARD LAYOUTS (1, 2, or 3 images) ──
-   When a category has ≤ 3 images, we show elegant static cards
-   instead of a marquee so every image is fully visible.
+/* ══════════════════════════════════════════════════════
+   SHOWCASE BANNER — FEW-IMAGE MODE (≤ 3 images)
+   Renders a polaroid-scatter wall matching the aesthetic
+   of the existing .polaroid-strip sections in the page.
+   Background: var(--off) / off-white linen texture.
+   Frames: white-padded polaroid cards, scattered rotations.
+   Caption: italic Jost below each frame.
 ══════════════════════════════════════════════════════ */
 
-/* Container that replaces the scrolling track */
+/* Banner becomes an off-white linen strip — same as polaroid-strip */
+.showcase-banner.sc-few-mode {
+  background: var(--off);
+  border-bottom: 2px solid var(--black);
+  padding: 36px 52px 44px;
+  overflow: visible;          /* let rotated cards breathe */
+  position: relative;
+}
+/* Subtle crosshatch texture — identical to polaroid-strip */
+.showcase-banner.sc-few-mode::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(45deg, transparent, transparent 22px, rgba(0,0,0,.018) 22px, rgba(0,0,0,.018) 23px),
+    repeating-linear-gradient(-45deg, transparent, transparent 22px, rgba(0,0,0,.018) 22px, rgba(0,0,0,.018) 23px);
+  pointer-events: none;
+  z-index: 0;
+}
+/* Suppress the marquee edge-fade overlay (::after is the right-side fade) */
+.showcase-banner.sc-few-mode::after {
+  display: none;
+}
+
+/* ── Polaroid scatter container ── */
 .sc-few-cards {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 3.5vw, 40px);
   width: 100%;
-  height: auto;
-  min-height: 200px;
-  gap: 0;
-  overflow: hidden;
-  position: relative;   /* needed for gold divider absolute positioning */
-}
-
-/* Individual premium card */
-.sc-few-card {
-  flex: 1;
   position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  min-width: 0;         /* prevent flex child overflow */
-  aspect-ratio: 4/3;
+  z-index: 1;
+  flex-wrap: wrap;           /* graceful on narrow screens */
 }
 
-/* Subtle reveal entrance */
+/* ── Individual polaroid frame ──
+   Mirrors .polaroid exactly so the look is 100% consistent */
 .sc-few-card {
-  animation: fewCardReveal .7s cubic-bezier(.34,1.2,.64,1) both;
+  flex-shrink: 0;
+  background: #fff;
+  padding: 10px 10px 38px;
+  box-shadow:
+    4px 6px 28px rgba(0,0,0,.18),
+    0  2px  8px rgba(0,0,0,.10),
+    inset 0 0 0 .5px rgba(0,0,0,.06);
+  position: relative;
+  cursor: pointer;
+  transition: transform .42s cubic-bezier(.34,1.56,.64,1),
+              box-shadow .3s ease;
+  /* Staggered scatter rotations — each nth-child gets its own tilt */
 }
-.sc-few-card:nth-child(2) { animation-delay: .12s; }
-.sc-few-card:nth-child(3) { animation-delay: .22s; }
+/* Scatter rotations per position — same feel as existing polaroids */
+.sc-few-card:nth-child(1) { transform: rotate(-3.8deg) translateY(5px);  animation: polReveal .65s cubic-bezier(.34,1.2,.64,1) .05s both; }
+.sc-few-card:nth-child(2) { transform: rotate( 2.6deg) translateY(-7px); animation: polReveal .65s cubic-bezier(.34,1.2,.64,1) .18s both; }
+.sc-few-card:nth-child(3) { transform: rotate(-1.2deg) translateY( 3px); animation: polReveal .65s cubic-bezier(.34,1.2,.64,1) .30s both; }
 
-@keyframes fewCardReveal {
-  from { opacity: 0; transform: scale(1.04); }
-  to   { opacity: 1; transform: scale(1); }
+@keyframes polReveal {
+  from { opacity: 0; transform: rotate(0deg) scale(.88) translateY(18px); }
+  /* to: the element's own transform is applied via nth-child above,
+     so we only need to reach scale(1) — the rotation snaps in via transition */
+  to   { opacity: 1; }
 }
 
-/* img inside few-card — styled entirely via JS in makeFewCard().
-   This CSS rule is a safety fallback only. */
+/* Hover: straighten, lift, enlarge — matches .polaroid:hover */
+.sc-few-card:hover {
+  transform: rotate(0deg) scale(1.07) translateY(-10px) !important;
+  box-shadow: 10px 20px 52px rgba(0,0,0,.26), 0 4px 14px rgba(0,0,0,.12);
+  z-index: 20;
+}
+
+/* ── Photo inside the frame ── */
 .sc-few-card img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  display: block;
+  width:  clamp(150px, 18vw, 210px);
+  height: clamp(150px, 18vw, 210px);
   object-fit: cover;
   object-position: center center;
-  display: block;
-  will-change: transform;
+  filter: brightness(.94) contrast(1.08) saturate(.95);
+  transition: filter .35s ease;
+  /* No Ken Burns — polaroids are still, honest snapshots */
 }
-/* On hover, pause Ken Burns */
 .sc-few-card:hover img {
-  animation-play-state: paused !important;
+  filter: brightness(1.01) contrast(1.08) saturate(1.06);
 }
 
-.sc-few-card .sc-fc-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.08) 55%, transparent 80%);
+/* ── Italic caption below the photo, inside white border area ── */
+.sc-pol-label {
+  position: absolute;
+  bottom: 9px;
+  left: 0; right: 0;
+  text-align: center;
+  font-family: 'Jost', sans-serif;
+  font-style: italic;
+  font-size: .82rem;
+  color: var(--light);
+  letter-spacing: .02em;
   pointer-events: none;
-  opacity: 0;
-  transition: opacity .35s ease;
-  z-index: 2;
-}
-.sc-few-card:hover .sc-fc-overlay { opacity: 1; }
-
-.sc-few-card .sc-fc-tag {
-  position: absolute; top: 14px; left: 14px;
-  font-family: 'Jost', sans-serif;
-  font-size: .34rem; letter-spacing: .2em; text-transform: uppercase;
-  padding: 5px 11px;
-  background: var(--gold); color: var(--black); font-weight: 600;
-  z-index: 3;
-  animation: tagSlideIn .5s cubic-bezier(.34,1.56,.64,1) .4s both;
-}
-@keyframes tagSlideIn {
-  from { opacity:0; transform: translateY(-6px); }
-  to   { opacity:1; transform: translateY(0); }
 }
 
-.sc-few-card .sc-fc-label {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  padding: 12px 16px;
-  font-family: 'Jost', sans-serif;
-  font-size: .38rem; letter-spacing: .22em; text-transform: uppercase;
-  color: rgba(255,255,255,.9);
-  opacity: 0; transform: translateY(5px);
-  transition: all .3s ease;
-  z-index: 3;
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .showcase-banner.sc-few-mode { padding: 28px 28px 36px; }
+  .sc-few-card img { width: clamp(120px,20vw,170px); height: clamp(120px,20vw,170px); }
+  .sc-few-card { padding: 8px 8px 32px; }
 }
-.sc-few-card:hover .sc-fc-label { opacity: 1; transform: translateY(0); }
-
-/* Gold divider between cards */
-.sc-few-card + .sc-few-card {
-  border-left: 1px solid rgba(255,255,255,.1);
+@media (max-width: 600px) {
+  .showcase-banner.sc-few-mode { padding: 24px 16px 32px; }
+  .sc-few-cards { gap: 14px; }
+  .sc-few-card img { width: clamp(100px, 26vw, 140px); height: clamp(100px, 26vw, 140px); }
+  .sc-few-card { padding: 7px 7px 28px; }
+  .sc-pol-label { font-size: .72rem; bottom: 7px; }
+  /* Reduce tilt on mobile so cards don't clip */
+  .sc-few-card:nth-child(1) { transform: rotate(-2.2deg) translateY(3px); }
+  .sc-few-card:nth-child(2) { transform: rotate( 1.8deg) translateY(-4px); }
+  .sc-few-card:nth-child(3) { transform: rotate(-.8deg)  translateY( 2px); }
 }
-
-/* 1-image: full-width cinematic hero */
-.sc-few-cards.sc-layout-1 { min-height: 240px; }
-.sc-few-cards.sc-layout-1 .sc-few-card { flex: 1; aspect-ratio: 16/7; }
-
-/* 2-image: balanced split */
-.sc-few-cards.sc-layout-2 .sc-few-card { flex: 1; aspect-ratio: 4/3; }
-
-/* 3-image: asymmetric — wide hero left + 2 stacked right */
-.sc-few-cards.sc-layout-3 { min-height: 220px; height: auto; }
-.sc-few-cards.sc-layout-3 .sc-few-card:first-child { flex: 1.65; aspect-ratio: auto; }
-
-.sc-few-cards.sc-layout-3 .sc-side-stack {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  min-width: 0;
-}
-.sc-few-cards.sc-layout-3 .sc-side-stack .sc-few-card {
-  flex: 1;
-  border-left: 1px solid rgba(255,255,255,.1);
-}
-.sc-few-cards.sc-layout-3 .sc-side-stack .sc-few-card + .sc-few-card {
-  border-top: 1px solid rgba(255,255,255,.1);
-}
-
-/* Ken Burns looping animations — alternate direction per card */
-@keyframes scFcKbA {
-  0%   { transform: scale(1.1)  translate(1%,   1%); }
-  50%  { transform: scale(1.04) translate(-0.5%, 0.5%); }
-  100% { transform: scale(1.09) translate(0.5%, -0.8%); }
-}
-@keyframes scFcKbB {
-  0%   { transform: scale(1.06) translate(-0.8%, 0.5%); }
-  50%  { transform: scale(1.12) translate(0.5%, -0.5%); }
-  100% { transform: scale(1.05) translate(-0.3%, 0.8%); }
-}
-@keyframes scFcKbC {
-  0%   { transform: scale(1.08) translate(0.5%, -0.8%); }
-  50%  { transform: scale(1.03) translate(-0.8%, 0.3%); }
-  100% { transform: scale(1.1)  translate(0.8%,  0.5%); }
-}
-
-/* Mobile tweaks */
-@media (max-width: 768px) {
-  .sc-few-cards         { min-height: 160px; }
-  .sc-few-cards.sc-layout-1 { min-height: 180px; }
-  .sc-few-cards.sc-layout-3 { min-height: 160px; }
-  .sc-few-card           { aspect-ratio: 4/3; }
-  .sc-few-card .sc-fc-tag   { font-size: .3rem; padding: 4px 8px; top: 10px; left: 10px; }
-}
-@media (max-width: 480px) {
-  .sc-few-cards         { min-height: 140px; }
-  .sc-few-cards.sc-layout-1 { min-height: 160px; }
-  .sc-few-cards.sc-layout-3 { height: auto; min-height: 0; flex-direction: column; }
-  .sc-few-cards.sc-layout-3 .sc-few-card:first-child { flex: none; aspect-ratio: 16/9; }
-  .sc-few-cards.sc-layout-3 .sc-side-stack {
-    flex: none; flex-direction: row; height: 140px;
-  }
-  .sc-few-cards.sc-layout-3 .sc-side-stack .sc-few-card {
-    border-left: none;
-    border-top: 1px solid rgba(255,255,255,.1);
-    aspect-ratio: auto;
-    flex: 1;
-    min-height: 140px;
-  }
-  .sc-few-cards.sc-layout-3 .sc-side-stack .sc-few-card + .sc-few-card {
-    border-left: 1px solid rgba(255,255,255,.1);
-    border-top: 1px solid rgba(255,255,255,.1);
-  }
+@media (max-width: 380px) {
+  .sc-few-cards { gap: 10px; }
+  .sc-few-card img { width: 90px; height: 90px; }
 }
 
 .masonry-wall{display:none!important;}
@@ -1127,7 +1089,7 @@ button,a{
 .dish-left{flex:1;min-width:0;}
 .dish-name{
   font-family:'Jost',sans-serif;font-size:1.05rem;letter-spacing:.01em;
-  color:#0a0a0a;font-weight:600;line-height:1.3;
+  color:#3a3a3a;font-weight:400;line-height:1.3;
 }
 .dish-sub{
   font-family:'Jost',sans-serif;font-size:.98rem;font-style:italic;
@@ -2040,9 +2002,6 @@ button,a{
         <div class="dish-item"><div class="dish-left"><div class="dish-name">Classic Masala Tea</div><div class="dish-sub">1 teapot — 2 small cups</div></div><div class="dish-price"><span>₹</span>65</div></div>
       </div>
 
-      <!-- Float gallery between subcats -->
-      <div class="float-gallery" id="fg-bev-1"></div>
-
       <div class="subcat">
         <div class="subcat-inner">
           <span class="subcat-name">Black Mix</span>
@@ -2302,23 +2261,6 @@ button,a{
         </div>
       </div>
 
-      <!-- Editorial split -->
-      <div class="editorial-split" id="ed-pizza">
-        <div class="ed-img" id="ed-pizza-img">
-          <img src="images/pizza/image-1.jpg" alt="Neapolitan Pizza" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;filter:brightness(.82);"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <!-- Fallback shown only if image missing -->
-          <div style="display:none;width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a 0%,#2d2218 50%,#1a1a1a 100%);align-items:center;justify-content:center;">
-            <div style="font-family:'Jost',sans-serif;font-style:italic;font-size:3rem;color:rgba(201,169,110,.15);">Neapolitan</div>
-          </div>
-        </div>
-        <div class="ed-text">
-          <div class="ed-eyebrow">Neapolitan Style</div>
-          <div class="ed-title">Hand-stretched<br><em>Authenticity</em></div>
-          <div class="ed-note">Slow-proofed dough, airy leopard-spotted crust — every bite a pilgrimage to Naples.</div>
-        </div>
-      </div>
-
       <div class="subcat">
         <div class="subcat-inner">
           <span class="subcat-name">Neapolitan Pizzas</span>
@@ -2487,8 +2429,6 @@ button,a{
         <div class="dish-item"><div class="dish-left"><div class="dish-name">Lassi</div><div class="dish-sub">Sweet / Salted / Mango (seasonal)</div></div><div class="dish-price"><span>₹</span>129 / 129 / 149</div></div>
       </div>
 
-      <div class="float-gallery" id="fg-tandoor-1"></div>
-
       <div class="subcat">
         <div class="subcat-inner">
           <span class="subcat-name">Tikkas</span>
@@ -2505,8 +2445,6 @@ button,a{
         <div class="dish-item"><div class="dish-left"><div class="dish-name">Malai Paneer Tikka</div></div><div class="dish-price"><span>₹</span>329</div></div>
         <div class="dish-item"><div class="dish-left"><div class="dish-name">Tandoori Aaloo</div></div><div class="dish-price"><span>₹</span>299</div></div>
       </div>
-
-      <div class="polaroid-strip" id="pol-tandoor"></div>
 
       <div class="subcat">
         <div class="subcat-inner">
@@ -2575,8 +2513,6 @@ button,a{
         <div class="dish-item"><div class="dish-left"><div class="dish-name">Yellow Dal</div></div><div class="dish-price"><span>₹</span>289</div></div>
       </div>
 
-      <div class="float-gallery" id="fg-mains-1"></div>
-
       <div class="subcat">
         <div class="subcat-inner">
           <span class="subcat-name">House of Paneer</span>
@@ -2612,8 +2548,6 @@ button,a{
         <div class="dish-item"><div class="dish-left"><div class="dish-name">Nargisi Kofta</div><div class="dish-sub">Mughlai-inspired kofta stuffed with dry fruits in spiced gravy</div></div><div class="dish-price"><span>₹</span>379</div></div>
         <div class="dish-item"><div class="dish-left"><div class="dish-name">Chandni Chowk-Style Chole Kofta</div><div class="dish-sub">North Indian spiced chole paired with moong dal kofta in a hearty curry</div></div><div class="dish-price"><span>₹</span>359</div></div>
       </div>
-
-      <div class="float-gallery" id="fg-mains-2"></div>
 
       <div class="subcat">
         <div class="subcat-inner">
@@ -2696,8 +2630,6 @@ button,a{
         <div class="dish-item"><div class="dish-left"><div class="dish-name">Subz Biryani</div><div class="dish-sub">Slow-cooked basmati layered with vegetables &amp; saffron, served with raita</div></div><div class="dish-price"><span>₹</span>349</div></div>
         <div class="dish-item"><div class="dish-left"><div class="dish-name">Dum Handi Biryani</div><div class="dish-sub">Traditional clay pot biryani sealed &amp; slow-cooked, served with burani raita</div></div><div class="dish-price"><span>₹</span>345</div></div>
       </div>
-
-      <div class="float-gallery" id="fg-rice-1"></div>
 
       <div class="subcat">
         <div class="subcat-inner">
@@ -3360,27 +3292,95 @@ const GAP_PX  = 12;
 const MARQUEE_PX_PER_SEC = 55;
 
 /* ══════════════════════════════════════════════════════
-   buildShowcaseBanner — UNIFIED SEAMLESS MARQUEE FOR ALL IMAGE COUNTS
+   buildShowcaseBanner — SMART ROUTER
    ──────────────────────────────────────────────────────
-   Every category — whether it has 1, 2, 3 or many images — uses
-   exactly the same seamless CSS marquee. No special static-card
-   path that causes half-cut images.
+   Categories with ≤ 3 images → premium static card layout
+     (no looping, no marquee — every image fully visible)
+   Categories with 4+ images → seamless CSS marquee
 
-   HOW LOW IMAGE COUNTS ARE HANDLED:
-   We repeat the base image set enough times so that one "filled
-   set" is ≥ 2800px wide. This means:
-     • The viewport (~1400px) always sees fully-complete cards
-     • The -50% loop point is always safely off-screen
-     • 1 image  → repeated ~14×  (≈14 cards scrolling)
-     • 2 images → repeated ~7×   (≈14 cards scrolling)
-     • 3 images → repeated ~5×   (≈15 cards scrolling)
-     • 8+ images → used as-is (already wide enough)
+   LOW-IMAGE LAYOUTS:
+     1 image → full-width cinematic hero (16:7 ratio)
+     2 images → balanced equal split
+     3 images → asymmetric grid: wide hero left + 2 stacked right
 
-   SEAMLESS LOOP MATH:
+   SEAMLESS MARQUEE (4+ images):
    Track = [filled-set-A] + [filled-set-B]  (identical copy)
    Animation: translateX(0 → -50%) = exactly one filled-set width
    When it loops from 100% → 0%, set-B snaps to set-A — zero jump.
 ══════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════
+   FEW-IMAGE SHOWCASE — POLAROID SCATTER BUILDER
+   Matches the polaroid-strip aesthetic already used
+   in the Beverages, Tandoor & Desserts sections.
+   ──────────────────────────────────────────────────────
+   Layout: centred flex row of white-padded polaroid cards
+   with scattered rotations, italic captions, off-white bg.
+   No marquee, no Ken Burns, no looping animation.
+══════════════════════════════════════════════════════ */
+
+/* Per-category italic captions for the polaroid labels */
+const FEW_CAPTIONS = {
+  beverages:  ['morning ritual','afternoon sip','evening chill','our brew','cloud nine','the pour','chilled out','brew master'],
+  appetizers: ['first bite','snack time','crispy start','the nibble'],
+  pasta:      ['al dente','tossed fresh','sauced up','the twist'],
+  pizza:      ['fresh bake','wood fired','slice of life','char & cheese'],
+  asian:      ['wok magic','stir & steam','east & feast','dumpling love'],
+  sushi:      ['the roll','fresh cut','ocean plate','chef press'],
+  sizzlers:   ['sizzle time','hot plate','the flame','grill marks'],
+  tandoor:    ['clay fire','tikka tales','smoky affair','char marks','the chap'],
+  mains:      ['slow simmer','spice trail','the ladle','comfort bowl'],
+  rice:       ['fragrant pot','saffron dreams','dum magic','the grain'],
+  breads:     ['fresh baked','warm crust','buttered up','the knead'],
+  soups:      ['bowl of warmth','the simmer','spoon moment','slow brew'],
+  salads:     ['garden fresh','the toss','crisp greens','light bite'],
+  desserts:   ['sweet dreams','sugar high','bake love','melt moment','happy end'],
+};
+
+/* Build one polaroid card — white frame + photo + italic label */
+function makeFewCard(src, idx, catId) {
+  const captions = FEW_CAPTIONS[catId] || ['sketch-y', 'flavour', 'artisan'];
+  const caption  = captions[idx % captions.length];
+
+  const card = document.createElement('div');
+  card.className = 'sc-few-card';
+
+  /* Photo — square, same proportions as existing .polaroid img */
+  const img = makeImg(src, caption);
+  /* Override makeImg's inline cssText to match polaroid sizing */
+  img.style.cssText = '';   // clear makeImg's inline styles
+  card.appendChild(img);
+
+  /* Italic caption in the white border area below the photo */
+  const lbl = document.createElement('div');
+  lbl.className  = 'sc-pol-label';
+  lbl.textContent = caption;
+  card.appendChild(lbl);
+
+  return card;
+}
+
+/* Build the polaroid scatter container and inject into banner */
+function buildFewCardsLayout(banner, track, imgs, catId) {
+  /* Remove the unused marquee track element */
+  if (track && track.parentNode === banner) {
+    track.parentNode.removeChild(track);
+  }
+
+  /* Switch banner to off-white polaroid mode */
+  banner.classList.add('sc-few-mode');
+
+  const container = document.createElement('div');
+  /* sc-layout-N kept for potential future targeting — layout is flex centre */
+  container.className = `sc-few-cards sc-layout-${imgs.length}`;
+
+  imgs.forEach((src, i) => {
+    container.appendChild(makeFewCard(src, i, catId));
+  });
+
+  banner.appendChild(container);
+}
+
 function buildShowcaseBanner(catId) {
   const track  = document.getElementById('track-'    + catId);
   const banner = document.getElementById('showcase-' + catId);
@@ -3388,6 +3388,14 @@ function buildShowcaseBanner(catId) {
 
   const pool = getPool(catId);
   if (pool.length === 0) { banner.style.display = 'none'; return; }
+
+  /* ── ROUTE: ≤ 3 images → polaroid scatter layout, no marquee ── */
+  if (pool.length <= 3) {
+    buildFewCardsLayout(banner, track, pool.slice(0, pool.length), catId);
+    return;
+  }
+
+  /* ── ROUTE: 4+ images → seamless CSS marquee ── */
 
   /* Use all available unique images, up to 8 */
   const baseImgs = pool.slice(0, Math.min(pool.length, 8));
@@ -3399,9 +3407,7 @@ function buildShowcaseBanner(catId) {
     onePassPx += (CARD_PX[sz] || 200) + GAP_PX;
   });
 
-  /* ─ Repeat image set until one-set ≥ 2800px ─
-     Guarantees no half-cut cards at ANY scroll position,
-     even for categories with just 1–3 images. */
+  /* ─ Repeat image set until one-set ≥ 2800px ─ */
   const MIN_MARQUEE_WIDTH = 2800;
   const repsNeeded = Math.ceil(MIN_MARQUEE_WIDTH / onePassPx);
   const filledImgs = [];
@@ -3426,10 +3432,7 @@ function buildShowcaseBanner(catId) {
     oneSetWidth += (CARD_PX[sizeClass] || 200) + GAP_PX;
   });
 
-  /* ─ Clone entire filled set once ─
-     Track = [set A] + [set B]
-     Animation moves -50% = exactly one set width.
-     When it loops, set B is pixel-identical to set A — zero jump. */
+  /* ─ Clone entire filled set once ─ */
   Array.from(track.children).forEach(card => {
     const clone = card.cloneNode(true);
     clone.setAttribute('aria-hidden', 'true');
@@ -3747,16 +3750,10 @@ function triggerGalleryBuilds() {
   });
 
   // Float galleries
-  buildFloatGallery('fg-bev-1',     'beverages', 6);
   buildFloatGallery('fg-asian-1',   'asian',     4);
-  buildFloatGallery('fg-tandoor-1', 'tandoor',   4);
-  buildFloatGallery('fg-mains-1',   'mains',     4);
-  buildFloatGallery('fg-mains-2',   'mains',     4);
-  buildFloatGallery('fg-rice-1',    'rice',      4);
 
   // Polaroid strips
   buildPolaroidStrip('pol-beverages', 'beverages', 8);
-  buildPolaroidStrip('pol-tandoor',   'tandoor',   5);
   buildPolaroidStrip('pol-desserts',  'desserts',  5);
 
   // Film reels
@@ -3821,16 +3818,6 @@ function triggerGalleryBuilds() {
     if (img.complete && img.naturalWidth === 0) tryNext();
   });
 
-  // Also try to wire the editorial image the same way
-  const edImg = document.querySelector('#ed-pizza-img img');
-  if (edImg) {
-    const base = edImg.getAttribute('src').replace(/\.[^.]+$/, '');
-    let extIdx = 0;
-    edImg.onerror = function tryEdExt() {
-      if (extIdx >= PIZZA_EXTS.length) { return; }
-      edImg.src = base + '.' + PIZZA_EXTS[extIdx++];
-    };
-  }
 })();
 
 /* ══════════════════════════════════════════════════════
