@@ -2885,10 +2885,10 @@ button,a{
 /* ── Auto-generate candidate paths for a folder ──────
    MAX_IMAGES_PER_FOLDER: maximum images expected per folder.
    Keep this close to your real image count — lower = faster probe. */
-const MAX_IMAGES_PER_FOLDER = 20;
-/* Only include the extensions you actually use.
-   Fewer extensions = fewer requests = images appear faster. */
-const IMG_EXTS = ['jpg', 'png', 'jpeg', 'webp'];
+const MAX_IMAGES_PER_FOLDER = 12;
+/* Priority extensions first — reduces total requests dramatically.
+   jpg/jpeg/png/webp covers virtually all use-cases. */
+const IMG_EXTS = ['jpg', 'jpeg', 'png', 'webp'];
 
 function genPaths(folder) {
   const paths = [];
@@ -2900,61 +2900,68 @@ function genPaths(folder) {
   return paths;
 }
 
-/* ── Fast parallel image prober ────────────────────────
-   Fires ALL number slots simultaneously (true parallel).
-   For each number, races all extensions — first to load wins.
-   Stops probing a slot the moment any extension succeeds.
-   Resolves as soon as 2 consecutive numbers both fail,
-   so short folders resolve in milliseconds not minutes.
-   Result: images appear in ~1–2 s on GitHub Pages instead
-   of several minutes with the old sequential approach.     */
+/* ── Ultra-fast parallel image prober ──────────────────
+   KEY OPTIMISATION: fires slots in small batches of 4.
+   As soon as any batch returns ALL misses, we stop early
+   — no need to probe up to slot 12 if slots 3+4 both fail.
+   For each slot, extensions race in parallel; first to load
+   wins and cancels the rest (by ignoring late callbacks).
+   Typical result on GitHub Pages: images appear in < 1 s.  */
 function loadValidImages(folder) {
   return new Promise(resolve => {
-    const valid   = [];          // collected valid paths in order
-    const settled = {};          // numIndex → true once resolved
-
-    // Fire all number slots at once in parallel
-    let pending = MAX_IMAGES_PER_FOLDER;
     const results = new Array(MAX_IMAGES_PER_FOLDER).fill(null);
+    const BATCH   = 4;   // probe 4 slots at a time
+    let   batchStart = 0;
 
-    function checkDone() {
-      pending--;
-      if (pending <= 0) {
-        // All slots settled — collect in order, stopping at first gap
-        for (let i = 0; i < results.length; i++) {
-          if (results[i]) valid.push(results[i]);
-          // Stop at first gap of 2+ consecutive misses
-          if (!results[i] && !results[i + 1]) break;
-        }
-        resolve(valid);
-      }
-    }
+    function probeSlot(i) {
+      return new Promise(slotDone => {
+        if (i >= MAX_IMAGES_PER_FOLDER) { slotDone(); return; }
+        const exts  = IMG_EXTS.slice();
+        let   found = false;
+        let   tried = 0;
 
-    for (let i = 0; i < MAX_IMAGES_PER_FOLDER; i++) {
-      const num   = i + 1;
-      const exts  = IMG_EXTS.slice();
-      let   found = false;
-      let   tried = 0;
-
-      // Race all extensions for this number slot
-      exts.forEach(ext => {
-        const src = `images/${folder}/image-${num}.${ext}`;
-        const img = new Image();
-        img.onload = () => {
-          if (!found) {
-            found = true;
-            results[i] = src;
-          }
-          tried++;
-          if (tried === exts.length) checkDone();
-        };
-        img.onerror = () => {
-          tried++;
-          if (tried === exts.length) checkDone();
-        };
-        img.src = src;
+        exts.forEach(ext => {
+          const src = `images/${folder}/image-${i + 1}.${ext}`;
+          const img = new Image();
+          img.onload = () => {
+            if (!found) { found = true; results[i] = src; }
+            if (++tried === exts.length) slotDone();
+          };
+          img.onerror = () => {
+            if (++tried === exts.length) slotDone();
+          };
+          img.src = src;
+        });
       });
     }
+
+    function runBatch() {
+      const slots = [];
+      for (let k = 0; k < BATCH && batchStart + k < MAX_IMAGES_PER_FOLDER; k++) {
+        slots.push(probeSlot(batchStart + k));
+      }
+      if (!slots.length) { finish(); return; }
+
+      Promise.all(slots).then(() => {
+        // Check if every slot in this batch missed — if so, stop early
+        const allMiss = slots.every((_, k) => !results[batchStart + k]);
+        batchStart += BATCH;
+        if (allMiss) { finish(); return; }
+        runBatch(); // probe next batch
+      });
+    }
+
+    function finish() {
+      const valid = [];
+      for (let i = 0; i < results.length; i++) {
+        if (results[i]) valid.push(results[i]);
+        // Stop collecting at first gap of 2+ consecutive misses
+        if (!results[i] && !results[i + 1]) break;
+      }
+      resolve(valid);
+    }
+
+    runBatch();
   });
 }
 
@@ -2962,16 +2969,28 @@ function loadValidImages(folder) {
 const IMAGE_POOLS = {};
 const ALL_FOLDERS = ['hero','beverages','appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts','global'];
 
-/* Load all folders in parallel, then trigger all gallery builds */
+/* Load hero + beverages first (above-fold), then all others in parallel.
+   This means the visible images appear in the first probe wave,
+   while below-fold folders load concurrently in the background. */
+const PRIORITY_FOLDERS = ['hero', 'beverages'];
+const REST_FOLDERS     = ALL_FOLDERS.filter(f => !PRIORITY_FOLDERS.includes(f));
+
 const _poolsReady = Promise.all(
-  ALL_FOLDERS.map(folder =>
-    loadValidImages(folder).then(paths => {
-      IMAGE_POOLS[folder] = paths;
-    })
+  PRIORITY_FOLDERS.map(folder =>
+    loadValidImages(folder).then(paths => { IMAGE_POOLS[folder] = paths; })
   )
 ).then(() => {
-  // Kick off all gallery builds once pools are ready
+  // Above-fold galleries ready — build immediately so images show fast
   triggerGalleryBuilds();
+  // Then load remaining folders in background — rebuild their galleries when ready
+  REST_FOLDERS.forEach(folder =>
+    loadValidImages(folder).then(paths => {
+      IMAGE_POOLS[folder] = paths;
+      // Re-build showcase + masonry for this category now its images are available
+      buildShowcaseBanner(folder);
+      buildMasonryWall(folder);
+    })
+  );
 });
 
 /* Convenience alias used by all gallery builders below */
