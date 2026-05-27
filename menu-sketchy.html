@@ -697,8 +697,8 @@ button,a{
   .sc-few-card img { width: 90px; height: 90px; }
 }
 
-.masonry-wall{display:none;}
-.masonry-wall.mw-ready{display:grid;}
+.masonry-wall{display:none!important;}
+.masonry-wall:empty{display:none;}
 .mw-cell{
   position:relative;overflow:hidden;cursor:pointer;
   background:rgba(255,255,255,.04);
@@ -2883,46 +2883,104 @@ button,a{
    ✅ Works for ALL 14 categories + hero + global.
 ══════════════════════════════════════════════════════ */
 
-/* ══════════════════════════════════════════════════════
-   ⚡ INSTANT IMAGE SYSTEM — Zero probe, zero wait
-   ──────────────────────────────────────────────────────
-   Old approach: probe every image-1..60 × 5 extensions
-   = 300 HTTP requests per folder × 16 folders = 4,800
-   round-trips BEFORE any image could appear. Slow.
-
-   New approach: galleries build IMMEDIATELY using all
-   candidate paths. Each <img> is inserted right away.
-   If a file exists → it renders. If missing → onerror
-   hides the frame silently. No waiting, no probing.
-   Result: images appear as fast as GitHub can serve them.
-══════════════════════════════════════════════════════ */
-
+/* ── Auto-generate candidate paths for a folder ──────
+   Tries image-1 through image-N for all supported extensions.
+   Returns a flat array of all candidate paths.
+   Missing ones are silently dropped by makeImg's onerror.
+   MAX_IMAGES_PER_FOLDER: raise if you have more than 60 images */
 const MAX_IMAGES_PER_FOLDER = 60;
 const IMG_EXTS = ['jpg','jpeg','png','webp','avif'];
 
-/* Generate all candidate paths for a folder (used as pool) */
 function genPaths(folder) {
   const paths = [];
   for (let n = 1; n <= MAX_IMAGES_PER_FOLDER; n++) {
-    /* Only use .jpg as the primary candidate — onerror in makeImg
-       handles fallback to placeholder. Using one extension per slot
-       avoids duplicate frames while keeping the pool large enough. */
-    paths.push(`images/${folder}/image-${n}.jpg`);
+    for (const ext of IMG_EXTS) {
+      paths.push(`images/${folder}/image-${n}.${ext}`);
+    }
   }
   return paths;
 }
 
-/* IMAGE_POOLS: pre-filled synchronously — no async needed */
+/* ── Async loader: returns only the paths that actually load ──
+   FAST MODE: All image numbers are probed in PARALLEL (not sequentially).
+   Each number tries extensions in order (jpg first), resolves on first hit.
+   All numbers fire simultaneously → results in ~1 round-trip instead of N.
+── */
+function loadValidImages(folder) {
+  const byNum = {};
+  for (let n = 1; n <= MAX_IMAGES_PER_FOLDER; n++) {
+    byNum[n] = IMG_EXTS.map(ext => `images/${folder}/image-${n}.${ext}`);
+  }
+  const nums = Object.keys(byNum).map(Number).sort((a,b) => a-b);
+
+  /* For each image number, probe all extensions in parallel and pick the
+     first one that loads (lowest extension index = jpg wins over png etc.) */
+  function probeNum(n) {
+    return new Promise(resolve => {
+      const exts = byNum[n];
+      let settled = false;
+      let remaining = exts.length;
+      const results = new Array(exts.length).fill(null);
+
+      exts.forEach((src, i) => {
+        const img = new Image();
+        img.onload = () => {
+          results[i] = src;
+          remaining--;
+          if (!settled) {
+            /* Don't resolve yet — wait for all so we pick lowest index */
+            if (remaining === 0) {
+              settled = true;
+              /* Return first successful extension (preserves jpg > png priority) */
+              resolve(results.find(r => r !== null) || null);
+            }
+          }
+        };
+        img.onerror = () => {
+          remaining--;
+          if (remaining === 0 && !settled) {
+            settled = true;
+            resolve(results.find(r => r !== null) || null);
+          }
+        };
+        img.src = src;
+      });
+    });
+  }
+
+  /* Fire ALL numbers in parallel at once */
+  return Promise.all(nums.map(n => probeNum(n))).then(results => {
+    /* Filter out nulls and stop at first gap (3 consecutive misses) */
+    const valid = [];
+    let consecutiveMisses = 0;
+    for (let i = 0; i < results.length; i++) {
+      if (results[i]) {
+        valid.push(results[i]);
+        consecutiveMisses = 0;
+      } else {
+        consecutiveMisses++;
+        if (consecutiveMisses >= 3) break;
+      }
+    }
+    return valid;
+  });
+}
+
+/* ── Image pools — loaded async, then used to build UI ── */
 const IMAGE_POOLS = {};
 const ALL_FOLDERS = ['hero','beverages','appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts','global'];
 
-ALL_FOLDERS.forEach(folder => {
-  IMAGE_POOLS[folder] = genPaths(folder);
+/* Load all folders in parallel, then trigger all gallery builds */
+const _poolsReady = Promise.all(
+  ALL_FOLDERS.map(folder =>
+    loadValidImages(folder).then(paths => {
+      IMAGE_POOLS[folder] = paths;
+    })
+  )
+).then(() => {
+  // Kick off all gallery builds once pools are ready
+  triggerGalleryBuilds();
 });
-
-/* Build galleries immediately — no waiting for probes */
-/* Use requestAnimationFrame so DOM is ready */
-requestAnimationFrame(() => triggerGalleryBuilds());
 
 /* Convenience alias used by all gallery builders below */
 const heroImages       = () => IMAGE_POOLS['hero']       || [];
@@ -2976,16 +3034,30 @@ function shuffle(arr) {
   return a;
 }
 
-/* ── Get pool for a category — shuffled randomly each page load ──
-   Capped at 10 per category: most restaurants have ≤10 images per section.
-   Raising this number increases 404 probes; lower = faster first paint. */
-const POOL_CAP = 10;
-function getPool(cat) {
-  const all = IMAGE_POOLS[cat] || [];
-  return shuffle([...all.slice(0, POOL_CAP)]);
+/* ── Get pool for a category — shuffled randomly each page load ── */
+/* ── Missing images are detected and silently skipped            ── */
+const _validatedPools = {}; // cache per-category after first validation
+
+async function validateImages(paths) {
+  const results = await Promise.all(paths.map(src =>
+    new Promise(resolve => {
+      const img = new Image();
+      img.onload  = () => resolve(src);
+      img.onerror = () => resolve(null);
+      img.src = src;
+    })
+  ));
+  return results.filter(Boolean);
 }
 
-/* ── Build <img> element — instant eager loading ── */
+function getPool(cat) {
+  const specific = IMAGES[cat] || [];
+  // Return shuffled immediately (missing images show placeholder, not empty frame)
+  // Validation runs async and updates pool for subsequent builds
+  return shuffle([...specific]);
+}
+
+/* ── Build <img> element — eager loading for fast display ── */
 function makeImg(src, alt='') {
   const img = document.createElement('img');
   img.src = src;
@@ -2994,24 +3066,43 @@ function makeImg(src, alt='') {
   img.fetchPriority = 'high';
   img.decoding = 'async';
   img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center center;display:block;';
-  /* Try alternate extensions before showing placeholder */
-  const FALLBACK_EXTS = ['jpeg','png','webp','avif'];
-  let fbIdx = 0;
-  img.onerror = function() {
-    const base = img.src.replace(/\.[^.?#]+(\?.*)?$/, '');
-    if (fbIdx < FALLBACK_EXTS.length) {
-      img.src = base + '.' + FALLBACK_EXTS[fbIdx++];
-      return;
+  // Smart focal point: after load, check aspect ratio
+  // Portrait images (taller than wide) → show top-center (face/top of dish)
+  // Landscape images (wider than tall) → show center (naturally fills frame)
+  // Square images → center
+  img.onload = function() {
+    const ratio = this.naturalWidth / this.naturalHeight;
+    if (ratio < 0.8) {
+      // Portrait: keep centered so full dish is visible
+      this.style.objectPosition = 'center center';
+    } else if (ratio > 1.5) {
+      // Wide landscape: center is fine
+      this.style.objectPosition = 'center center';
+    } else {
+      this.style.objectPosition = 'center center';
     }
-    /* All extensions exhausted — show a premium dark placeholder */
+  };
+  // Fallback: if local image is missing, render a premium placeholder
+  img.onerror = function() {
     this.onerror = null;
-    this.style.display = 'none';
+    // Replace broken img with a styled placeholder div
     const ph = document.createElement('div');
-    ph.style.cssText = 'width:100%;height:100%;background:linear-gradient(135deg,#141414 0%,#1e1a17 40%,#181410 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:absolute;inset:0;';
-    ph.innerHTML = '<div style="width:32px;height:32px;border:1.5px solid rgba(201,169,110,.35);border-radius:2px;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(201,169,110,.5)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><span style="font-family:Jost,sans-serif;font-size:.26rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(201,169,110,.4);">Sketch-Y</span>';
+    ph.style.cssText = `
+      width:100%;height:100%;
+      background:linear-gradient(135deg,#141414 0%,#1e1a17 40%,#181410 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:10px;position:absolute;inset:0;
+    `;
+    ph.innerHTML = `
+      <div style="width:34px;height:34px;border:1.5px solid rgba(201,169,110,.45);border-radius:2px;display:flex;align-items:center;justify-content:center;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(201,169,110,.6)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      </div>
+      <span style="font-family:'Jost',sans-serif;font-size:.28rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(201,169,110,.5);">Sketch-Y</span>
+    `;
     if (this.parentElement) {
       this.parentElement.style.position = 'relative';
       this.parentElement.appendChild(ph);
+      this.style.display = 'none';
     }
   };
   return img;
@@ -3039,22 +3130,31 @@ function buildMasonryWall(catId) {
   const wall = document.getElementById('wall-' + catId);
   if (!wall) return;
   const pool = getPool(catId);
+  // Hide wall entirely if no images
+  if (pool.length === 0) { wall.style.display = 'none'; return; }
   const labels = WALL_LABELS[catId] || ['Sketch-Y'];
   const tags = ['Popular','Chef Pick','New','Signature',''];
 
-  // Always build 5 cells — missing images self-hide via onerror
-  const count = 5;
-  const colMap = { 1:'1fr', 2:'2fr 1fr', 3:'2fr 1fr 1fr', 4:'2fr 1fr 1fr 1fr', 5:'2.2fr 1fr 1fr' };
-  wall.style.gridTemplateColumns = colMap[count];
-  wall.style.gridAutoRows = 'minmax(180px, 260px)';
-  wall.classList.add('mw-ready'); // triggers display:grid
+  // Use only as many cells as we have unique images (max 5)
+  const count = Math.min(pool.length, 5);
+  const imgs = pool.slice(0, count); // strictly no repeats
 
-  for (let i = 0; i < count; i++) {
-    const src = pool[i] || `images/${catId}/image-${i+1}.jpg`;
+  // Layout presets by image count
+  // 1 image: full-width single cell
+  // 2 images: hero + 1
+  // 3 images: hero + 2
+  // 4 images: hero + 3
+  // 5 images: hero + 4 (default)
+  const colMap = { 1:'1fr', 2:'2fr 1fr', 3:'2fr 1fr 1fr', 4:'2fr 1fr 1fr 1fr', 5:'2.2fr 1fr 1fr' };
+  wall.style.gridTemplateColumns = colMap[count] || colMap[5];
+  wall.style.gridAutoRows = 'minmax(180px, 260px)';
+
+  imgs.forEach((src, i) => {
     const cell = document.createElement('div');
     const isHero = i === 0;
     cell.className = 'mw-cell has-real-img' + (isHero ? ' mw-hero' : '');
-    if (isHero) cell.style.gridRow = 'span 2';
+    // Only hero spans 2 rows when we have 5 images
+    if (isHero && count === 5) cell.style.gridRow = 'span 2';
     const tag = tags[i % tags.length];
     const label = labels[i] || '';
     cell.innerHTML = `
@@ -3064,7 +3164,7 @@ function buildMasonryWall(catId) {
     `;
     cell.insertBefore(makeImg(src, label), cell.firstChild);
     wall.appendChild(cell);
-  }
+  });
 }
 
 /* ══════════════════════════════════════════════════════
@@ -3074,16 +3174,20 @@ function buildFloatGallery(elId, catId, count=4) {
   const el = document.getElementById(elId);
   if (!el) return;
   const pool = getPool(catId);
+  if (pool.length === 0) { el.style.display = 'none'; return; }
 
-  for (let i = 0; i < count; i++) {
-    const src = pool[i] || `images/${catId}/image-${i+1}.jpg`;
+  // Only show as many cells as we have images (no repeats)
+  const imgs = pool.slice(0, Math.min(count, pool.length));
+  if (imgs.length === 0) { el.style.display = 'none'; return; }
+
+  imgs.forEach((src, i) => {
     const cell = document.createElement('div');
     cell.className = 'fg-cell' + (i === 1 ? ' fg-wide' : '');
     const badge = i === 0 ? 'Featured' : '';
     cell.innerHTML = `<div class="fg-badge">${badge}</div>`;
     cell.insertBefore(makeImg(src), cell.firstChild);
     el.appendChild(cell);
-  }
+  });
 }
 
 /* ══════════════════════════════════════════════════════
@@ -3099,10 +3203,13 @@ function buildPolaroidStrip(elId, catId, count=5) {
   const el = document.getElementById(elId);
   if (!el) return;
   const pool = getPool(catId);
+  if (pool.length === 0) { el.style.display = 'none'; return; }
   const captions = POL_CAPTIONS[catId] || ['sketch-y','cuisine','ajmer','the vibe','flavour'];
 
-  for (let i = 0; i < count; i++) {
-    const src = pool[i] || `images/${catId}/image-${i+1}.jpg`;
+  // Use only unique images up to count — no repeats
+  const imgs = pool.slice(0, Math.min(count, pool.length));
+
+  imgs.forEach((src, i) => {
     const pol = document.createElement('div');
     pol.className = 'polaroid';
     const img = makeImg(src, captions[i % captions.length]);
@@ -3113,7 +3220,7 @@ function buildPolaroidStrip(elId, catId, count=5) {
     lbl.textContent = captions[i % captions.length];
     pol.appendChild(lbl);
     el.appendChild(pol);
-  }
+  });
 }
 
 /* ══════════════════════════════════════════════════════
@@ -3122,9 +3229,12 @@ function buildPolaroidStrip(elId, catId, count=5) {
 function buildFilmReel(trackId, catId, frameCount=14) {
   const track = document.getElementById(trackId);
   if (!track) return;
+  const reel = track.closest('.film-reel');
   const pool = getPool(catId);
-  const base = pool.length > 0 ? pool : Array.from({length:frameCount}, (_,i) => `images/${catId}/image-${i+1}.jpg`);
-  const shuffled = shuffle(base);
+  if (pool.length === 0) { if (reel) reel.style.display = 'none'; return; }
+  const shuffled = shuffle(pool);
+
+  // Duplicate for infinite loop
   const double = [...shuffled, ...shuffled];
   double.slice(0, frameCount * 2).forEach(src => {
     const frame = document.createElement('div');
@@ -3292,16 +3402,18 @@ function buildShowcaseBanner(catId) {
   if (!track || !banner) return;
 
   const pool = getPool(catId);
-  // Always build with up to 8 images — missing ones show placeholder via onerror
-  const basePool = pool.length > 0 ? pool : [];
-  // Fill up to 8 slots, repeating if needed
-  const filled8 = [];
-  for (let i = 0; i < 8; i++) {
-    filled8.push(pool[i] || `images/${catId}/image-${i+1}.jpg`);
+  if (pool.length === 0) { banner.style.display = 'none'; return; }
+
+  /* ── ROUTE: ≤ 3 images → polaroid scatter layout, no marquee ── */
+  if (pool.length <= 3) {
+    buildFewCardsLayout(banner, track, pool.slice(0, pool.length), catId);
+    return;
   }
 
-  /* ── ROUTE: always use seamless CSS marquee ── */
-  const baseImgs = filled8;
+  /* ── ROUTE: 4+ images → seamless CSS marquee ── */
+
+  /* Use all available unique images, up to 8 */
+  const baseImgs = pool.slice(0, Math.min(pool.length, 8));
 
   /* ─ Calculate how wide one pass of base images is ─ */
   let onePassPx = 40; // initial left-padding
@@ -3539,6 +3651,8 @@ function buildHeroBgReel() {
 function buildPinMasonry(wallId, catId) {
   const wall = document.getElementById(wallId);
   if (!wall) return;
+  const pool = getPool(catId);
+  if (!pool.length) { wall.style.display = 'none'; return; }
   // Already handled by buildMasonryWall — just enrich with parallax
   wall.querySelectorAll('.mw-cell img').forEach(img => {
     img.style.willChange = 'transform';
@@ -3605,31 +3719,42 @@ function buildParallaxDivider(elId, catId) {
   const bg = el.querySelector('.pd-bg');
   if (!bg) return;
   const pool = getPool(catId);
-  const src = pool[0] || `images/${catId}/image-1.jpg`;
+  if (!pool.length) {
+    bg.style.background = 'linear-gradient(135deg, #0a0a0a 0%, #1a1510 100%)';
+    return;
+  }
+  const src = pool[Math.floor(Math.random() * pool.length)];
   bg.style.backgroundImage = `url('${src}')`;
+  // Test if image loads; if not, fall back to CSS gradient
   const tester = new Image();
+  tester.onload = () => {}; // image loaded fine
   tester.onerror = () => {
     bg.style.backgroundImage = 'none';
-    bg.style.background = 'linear-gradient(135deg, #0a0a0a 0%, #1a1510 50%, #0e0c09 100%)';
+    bg.style.background = `
+      linear-gradient(135deg, #0a0a0a 0%, #1a1510 50%, #0e0c09 100%)
+    `;
   };
   tester.src = src;
 }
 
+/* ══════════════════════════════════════════════════════
+   EDITORIAL SPLITS — populate image side
+══════════════════════════════════════════════════════ */
 function buildEditorialImg(imgDivId, catId) {
   const el = document.getElementById(imgDivId);
   if (!el) return;
   const pool = getPool(catId);
-  const src = pool[0] || `images/${catId}/image-1.jpg`;
-  el.innerHTML = '';
-  const img = makeImg(src);
+  if (!pool.length) return;
+  el.innerHTML = ''; // clear placeholder
+  const img = makeImg(pool[Math.floor(Math.random() * pool.length)]);
   img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s ease;filter:brightness(.85);';
   el.appendChild(img);
 }
 
 /* ══════════════════════════════════════════════════════
    INIT ALL VISUAL SECTIONS
-   triggerGalleryBuilds() fires instantly via rAF — pools
-   are pre-filled synchronously, no async wait needed.
+   triggerGalleryBuilds() is called by _poolsReady (above)
+   once all image pools have been loaded asynchronously.
 ══════════════════════════════════════════════════════ */
 function triggerGalleryBuilds() {
   const ALL_CATS = ['beverages','appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts'];
