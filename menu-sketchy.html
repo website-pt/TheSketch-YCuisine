@@ -3004,6 +3004,7 @@ const ALL_FOLDERS = ['hero','beverages','appetizers','pasta','pizza','asian','su
 const _heroFastPath = loadHeroFastPath().then(src => {
   if (src) {
     IMAGE_POOLS['hero'] = [src];
+    // Build hero bg reel with just the first image right away
     if (typeof buildHeroBgReel === 'function') buildHeroBgReel();
   }
 });
@@ -3016,6 +3017,7 @@ const _phase1 = Promise.all(
     })
   )
 ).then(() => {
+  // Build above-fold galleries immediately
   if (typeof buildHeroBgReel === 'function') buildHeroBgReel();
   if (typeof buildCinematicSlider === 'function') buildCinematicSlider();
   if (typeof buildShowcaseBanner === 'function') buildShowcaseBanner('beverages');
@@ -3025,6 +3027,7 @@ const _phase1 = Promise.all(
     buildFilmReel('reel-bev-track', 'beverages', 12);
     if (typeof startReelScroll === 'function') startReelScroll('reel-bev-track');
   }
+  // Trigger first section entrance animations
   setTimeout(() => {
     const first = document.querySelector('#s-beverages.active');
     if (first) {
@@ -3042,6 +3045,7 @@ const _phase1 = Promise.all(
 const PHASE2_FOLDERS = ['appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts'];
 
 const _phase2 = _phase1.then(() => {
+  /* Load in 3 parallel batches to avoid saturating connections */
   const BATCH_SIZE = 4;
   const batches = [];
   for (let i = 0; i < PHASE2_FOLDERS.length; i += BATCH_SIZE) {
@@ -3053,6 +3057,7 @@ const _phase2 = _phase1.then(() => {
       Promise.all(batch.map(folder =>
         loadValidImages(folder).then(paths => {
           IMAGE_POOLS[folder] = paths;
+          /* Build this category's galleries as soon as its images are ready */
           if (typeof buildShowcaseBanner === 'function') buildShowcaseBanner(folder);
           if (typeof buildMasonryWall === 'function') buildMasonryWall(folder);
         })
@@ -3067,6 +3072,7 @@ const _phase3 = _phase2.then(() => {
   idle(() => {
     loadValidImages('global').then(paths => {
       IMAGE_POOLS['global'] = paths;
+      /* Build remaining one-off galleries that depend on all pools */
       if (typeof buildFloatGallery === 'function') buildFloatGallery('fg-asian-1', 'asian', 4);
       if (typeof buildPolaroidStrip === 'function') buildPolaroidStrip('pol-desserts', 'desserts', 5);
     });
@@ -3128,21 +3134,6 @@ function shuffle(arr) {
   return a;
 }
 
-/* ── Get pool for a category — shuffled randomly each page load ── */
-/* ── Missing images are detected and silently skipped            ── */
-const _validatedPools = {}; // cache per-category after first validation
-
-async function validateImages(paths) {
-  const results = await Promise.all(paths.map(src =>
-    new Promise(resolve => {
-      const img = new Image();
-      img.onload  = () => resolve(src);
-      img.onerror = () => resolve(null);
-      img.src = src;
-    })
-  ));
-  return results.filter(Boolean);
-}
 
 function getPool(cat) {
   const specific = IMAGES[cat] || [];
@@ -3152,28 +3143,16 @@ function getPool(cat) {
 }
 
 /* ── Build <img> element with lazy loading + smart positioning + fallback ── */
-function makeImg(src, alt='') {
+function makeImg(src, alt='', eager=false) {
   const img = document.createElement('img');
   img.src = src;
   img.alt = alt;
-  img.loading = 'lazy';
+  img.loading = eager ? 'eager' : 'lazy';
   img.decoding = 'async';
+  if (eager) img.fetchPriority = 'high';
   img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center center;display:block;';
-  // Smart focal point: after load, check aspect ratio
-  // Portrait images (taller than wide) → show top-center (face/top of dish)
-  // Landscape images (wider than tall) → show center (naturally fills frame)
-  // Square images → center
   img.onload = function() {
-    const ratio = this.naturalWidth / this.naturalHeight;
-    if (ratio < 0.8) {
-      // Portrait: keep centered so full dish is visible
-      this.style.objectPosition = 'center center';
-    } else if (ratio > 1.5) {
-      // Wide landscape: center is fine
-      this.style.objectPosition = 'center center';
-    } else {
-      this.style.objectPosition = 'center center';
-    }
+    this.style.objectPosition = 'center center';
   };
   // Fallback: if local image is missing, render a premium placeholder
   img.onerror = function() {
@@ -3681,6 +3660,7 @@ function buildHeroBgReel() {
     img.alt = '';
     img.loading = i === 0 ? 'eager' : 'lazy';
     img.decoding = 'async';
+    if (i === 0) img.fetchPriority = 'high';
     img.onerror = function() {
       this.style.display = 'none';
       slide.style.background = 'linear-gradient(135deg,#0a0a0a 0%,#1a1210 100%)';
@@ -3850,29 +3830,25 @@ function buildEditorialImg(imgDivId, catId) {
    once all image pools have been loaded asynchronously.
 ══════════════════════════════════════════════════════ */
 function triggerGalleryBuilds() {
+  /* This function is now called incrementally by the phase loader above.
+     It remains here as a fallback for any direct calls. */
   const ALL_CATS = ['beverages','appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts'];
 
   ALL_CATS.forEach(cat => {
-    buildShowcaseBanner(cat);
-    buildMasonryWall(cat);
+    if (IMAGE_POOLS[cat] && IMAGE_POOLS[cat].length > 0) {
+      buildShowcaseBanner(cat);
+      buildMasonryWall(cat);
+    }
   });
 
-  // Float galleries
   buildFloatGallery('fg-asian-1',   'asian',     4);
-
-  // Polaroid strips
   buildPolaroidStrip('pol-beverages', 'beverages', 8);
   buildPolaroidStrip('pol-desserts',  'desserts',  5);
-
-  // Film reels
   buildFilmReel('reel-bev-track', 'beverages', 12);
   startReelScroll('reel-bev-track');
-
-  // Hero bg reel + cinematic slider (depend on heroImages pool)
   buildHeroBgReel();
   buildCinematicSlider();
 
-  // First section entrance animations
   setTimeout(() => {
     const first = document.querySelector('#s-beverages.active');
     if (first) {
