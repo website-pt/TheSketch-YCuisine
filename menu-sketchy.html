@@ -9,8 +9,16 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
 <title>Menu — THE Sketch-Y Cuisine</title>
+<!-- Resource hints for fast GitHub Pages delivery -->
+<link rel="dns-prefetch" href="https://raw.githubusercontent.com">
+<link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+<link rel="dns-prefetch" href="https://objects.githubusercontent.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+<!-- Preload first hero image for instant above-fold render -->
+<link rel="preload" as="image" href="hero-bg-1.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="images/hero/image-1.jpg" fetchpriority="high">
 
 <style>
 /* ══════════════════════════════════════════════════════
@@ -182,8 +190,11 @@ button,a{
   object-fit:cover;
   display:block;
   filter:brightness(.60) saturate(1.15) contrast(1.05);
-  transform:scale(1);
+  transform:scale(1) translateZ(0);
   animation:none;
+  will-change:transform;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
 }
 .hero-bg-slide.hbs-active img{
   animation:kenBurns 10s ease-in-out forwards;
@@ -400,6 +411,7 @@ button,a{
   display:none;
   padding:0;
   animation:sectionReveal .38s cubic-bezier(.34,1.2,.64,1) both;
+  contain:layout style;
 }
 .menu-section.active{display:block;}
 
@@ -2894,94 +2906,92 @@ button,a{
    ✅ Works for ALL 14 categories + hero + global.
 ══════════════════════════════════════════════════════ */
 
-/* ── Auto-generate candidate paths for a folder ──────
-   Tries image-1 through image-N for all supported extensions.
-   Returns a flat array of all candidate paths.
-   Missing ones are silently dropped by makeImg's onerror.
-   MAX_IMAGES_PER_FOLDER: raise if you have more than 60 images */
-const MAX_IMAGES_PER_FOLDER = 60;
-const IMG_EXTS = ['jpg','jpeg','png','webp','avif'];
+/* ══════════════════════════════════════════════════════
+   FAST PARALLEL IMAGE DISCOVERY
+   - Probes numbers in parallel batches of 6
+   - Tries extensions in priority order (jpg first)
+   - Stops after 2 consecutive all-miss batches
+   - Max 20 images per folder (covers real-world use)
+   - Results cached so no duplicate fetches ever
+══════════════════════════════════════════════════════ */
+const MAX_IMAGES_PER_FOLDER = 20;
+const IMG_EXTS = ['jpg','webp','jpeg','png','avif'];
+const PARALLEL_BATCH = 6;
+const _imgCache = {};
 
-function genPaths(folder) {
-  const paths = [];
-  for (let n = 1; n <= MAX_IMAGES_PER_FOLDER; n++) {
-    for (const ext of IMG_EXTS) {
-      paths.push(`images/${folder}/image-${n}.${ext}`);
+function probeNumber(folder, n) {
+  const cacheKey = folder + '/' + n;
+  if (_imgCache[cacheKey] !== undefined) return Promise.resolve(_imgCache[cacheKey]);
+  return new Promise(resolve => {
+    let extIdx = 0;
+    function tryExt() {
+      if (extIdx >= IMG_EXTS.length) { _imgCache[cacheKey] = null; resolve(null); return; }
+      const src = 'images/' + folder + '/image-' + n + '.' + IMG_EXTS[extIdx++];
+      const img = new Image();
+      img.onload  = () => { _imgCache[cacheKey] = src; resolve(src); };
+      img.onerror = tryExt;
+      img.src = src;
     }
-  }
-  return paths;
+    tryExt();
+  });
 }
 
-/* ── Async loader: returns only the paths that actually load ── */
-function loadValidImages(folder) {
-  return new Promise(resolve => {
-    const candidates = genPaths(folder);
-    let found = 0;
-    let checked = 0;
-    const valid = [];
-    // Test in parallel; stop after we hit MAX_IMAGES_PER_FOLDER successes
-    // or all candidates are tested.
-    // Strategy: test image-1 first per extension, then image-2, etc.
-    // Group by number so we stop at first missing number
-    const byNum = {};
-    candidates.forEach(p => {
-      const m = p.match(/image-(\d+)\./);
-      if (!m) return;
-      const n = parseInt(m[1]);
-      if (!byNum[n]) byNum[n] = [];
-      byNum[n].push(p);
-    });
-
-    const nums = Object.keys(byNum).map(Number).sort((a,b) => a-b);
-    let consecutiveMisses = 0;
-    let numIdx = 0;
-
-    function testNext() {
-      if (numIdx >= nums.length || consecutiveMisses >= 3) {
-        resolve(valid);
-        return;
-      }
-      const n = nums[numIdx++];
-      const exts = byNum[n];
-      let extIdx = 0;
-      let foundForNum = false;
-
-      function tryExt() {
-        if (extIdx >= exts.length) {
-          if (!foundForNum) consecutiveMisses++;
-          else consecutiveMisses = 0;
-          testNext();
-          return;
-        }
-        const src = exts[extIdx++];
-        const img = new Image();
-        img.onload = () => {
-          if (!foundForNum) { valid.push(src); foundForNum = true; }
-          tryExt(); // skip remaining exts for this number
-        };
-        img.onerror = tryExt;
-        img.src = src;
-      }
-      tryExt();
-    }
-    testNext();
-  });
+async function loadValidImages(folder) {
+  const valid = [];
+  let n = 1;
+  let missBatches = 0;
+  while (n <= MAX_IMAGES_PER_FOLDER && missBatches < 2) {
+    const batch = [];
+    for (let i = 0; i < PARALLEL_BATCH && n <= MAX_IMAGES_PER_FOLDER; i++, n++) batch.push(n);
+    const results = await Promise.all(batch.map(num => probeNumber(folder, num)));
+    const found = results.filter(Boolean);
+    valid.push(...found);
+    missBatches = found.length === 0 ? missBatches + 1 : 0;
+  }
+  return valid;
 }
 
 /* ── Image pools — loaded async, then used to build UI ── */
 const IMAGE_POOLS = {};
 const ALL_FOLDERS = ['hero','beverages','appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts','global'];
 
-/* Load all folders in parallel, then trigger all gallery builds */
+/* Priority-first loading: hero + active section first, rest deferred */
+const PRIORITY_FOLDERS = ['hero', 'beverages'];
+const DEFERRED_FOLDERS = ALL_FOLDERS.filter(f => !PRIORITY_FOLDERS.includes(f));
+
 const _poolsReady = Promise.all(
-  ALL_FOLDERS.map(folder =>
-    loadValidImages(folder).then(paths => {
-      IMAGE_POOLS[folder] = paths;
-    })
+  PRIORITY_FOLDERS.map(folder =>
+    loadValidImages(folder).then(paths => { IMAGE_POOLS[folder] = paths; })
   )
 ).then(() => {
-  // Kick off all gallery builds once pools are ready
-  triggerGalleryBuilds();
+  /* Render above-fold immediately */
+  buildHeroBgReel();
+  buildCinematicSlider();
+  buildShowcaseBanner('beverages');
+  buildMasonryWall('beverages');
+  buildPolaroidStrip('pol-beverages', 'beverages', 8);
+  buildFilmReel('reel-bev-track', 'beverages', 12);
+  startReelScroll('reel-bev-track');
+  setTimeout(() => {
+    const first = document.querySelector('#s-beverages.active');
+    if (first) {
+      first.querySelectorAll('.dish-item').forEach((el, i) => {
+        setTimeout(() => { el.style.opacity='1'; el.style.transform='translateY(0)'; }, 80 + i*20);
+      });
+      first.querySelectorAll('.subcat').forEach((el, i) => {
+        setTimeout(() => { el.style.opacity='1'; el.style.transform='translateX(0)'; }, 60 + i*80);
+      });
+    }
+  }, 100);
+}).then(() => {
+  /* Load remaining folders in background */
+  return Promise.all(
+    DEFERRED_FOLDERS.map(folder =>
+      loadValidImages(folder).then(paths => { IMAGE_POOLS[folder] = paths; })
+    )
+  );
+}).then(() => {
+  triggerDeferredGalleryBuilds();
 });
 
 /* Convenience alias used by all gallery builders below */
@@ -3066,7 +3076,7 @@ function makeImg(src, alt='') {
   img.alt = alt;
   img.loading = 'lazy';
   img.decoding = 'async';
-  img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center center;display:block;';
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center center;display:block;transform:translateZ(0);backface-visibility:hidden;';
   // Smart focal point: after load, check aspect ratio
   // Portrait images (taller than wide) → show top-center (face/top of dish)
   // Landscape images (wider than tall) → show center (naturally fills frame)
@@ -3501,6 +3511,7 @@ function buildCinematicSlider() {
     img.src = slide.src;
     img.alt = '';
     img.loading = i === 0 ? 'eager' : 'lazy';
+    if (i === 0) img.fetchPriority = 'high';
     img.decoding = 'async';
     // Fallback: if slider image missing, show cinematic dark gradient
     img.onerror = function() {
@@ -3588,6 +3599,7 @@ function buildHeroBgReel() {
     img.src = src;
     img.alt = '';
     img.loading = i === 0 ? 'eager' : 'lazy';
+    if (i === 0) img.fetchPriority = 'high';
     img.decoding = 'async';
     img.onerror = function() {
       this.style.display = 'none';
@@ -3757,41 +3769,27 @@ function buildEditorialImg(imgDivId, catId) {
    triggerGalleryBuilds() is called by _poolsReady (above)
    once all image pools have been loaded asynchronously.
 ══════════════════════════════════════════════════════ */
-function triggerGalleryBuilds() {
-  const ALL_CATS = ['beverages','appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts'];
+/* triggerGalleryBuilds kept as alias for compatibility */
+function triggerGalleryBuilds() { triggerDeferredGalleryBuilds(); }
 
-  ALL_CATS.forEach(cat => {
-    buildShowcaseBanner(cat);
-    buildMasonryWall(cat);
+/* Builds all remaining galleries after deferred pools are ready.
+   beverages + hero are already built by priority phase above. */
+function triggerDeferredGalleryBuilds() {
+  const DEFERRED_CATS = ['appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts'];
+
+  /* Use requestIdleCallback if available so main thread stays free */
+  const schedule = typeof requestIdleCallback === 'function'
+    ? (fn) => requestIdleCallback(fn, { timeout: 3000 })
+    : (fn) => setTimeout(fn, 0);
+
+  schedule(() => {
+    DEFERRED_CATS.forEach(cat => {
+      buildShowcaseBanner(cat);
+      buildMasonryWall(cat);
+    });
+    buildFloatGallery('fg-asian-1', 'asian', 4);
+    buildPolaroidStrip('pol-desserts', 'desserts', 5);
   });
-
-  // Float galleries
-  buildFloatGallery('fg-asian-1',   'asian',     4);
-
-  // Polaroid strips
-  buildPolaroidStrip('pol-beverages', 'beverages', 8);
-  buildPolaroidStrip('pol-desserts',  'desserts',  5);
-
-  // Film reels
-  buildFilmReel('reel-bev-track', 'beverages', 12);
-  startReelScroll('reel-bev-track');
-
-  // Hero bg reel + cinematic slider (depend on heroImages pool)
-  buildHeroBgReel();
-  buildCinematicSlider();
-
-  // First section entrance animations
-  setTimeout(() => {
-    const first = document.querySelector('#s-beverages.active');
-    if (first) {
-      first.querySelectorAll('.dish-item').forEach((el, i) => {
-        setTimeout(() => { el.style.opacity='1'; el.style.transform='translateY(0)'; }, 80 + i*20);
-      });
-      first.querySelectorAll('.subcat').forEach((el, i) => {
-        setTimeout(() => { el.style.opacity='1'; el.style.transform='translateX(0)'; }, 60 + i*80);
-      });
-    }
-  }, 100);
 }
 
 
