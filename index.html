@@ -1876,14 +1876,20 @@ body { -webkit-font-smoothing: antialiased; }
 @media (max-width: 480px) {
   nav { padding: 14px 16px; }
   nav.scrolled { padding: 10px 16px; }
+  /* Navbar logo: always left-aligned, never centered, on mobile */
+  .nav-logo { justify-content: flex-start; flex: 1; min-width: 0; }
+  /* Hide the text beside the logo in navbar on mobile — only show emblem */
+  .nav-logo-text { display: none !important; }
   .nav-logo-emblem { width: 34px; height: 34px; }
-  .nav-logo .logo-sketchy { font-size: 1.1rem; }
-  .nav-logo .logo-cuisine { font-size: 1.1rem; }
-  .nav-logo .logo-the { font-size: 1.1rem; }
+  .nav-logo .logo-sketchy { font-size: 1.05rem; }
+  .nav-logo .logo-cuisine { font-size: 1.05rem; }
+  .nav-logo .logo-the { font-size: 1.05rem; }
   section { padding: 36px 16px; }
   #hero { padding: 0 16px; }
-  .hero-sketchy { font-size: clamp(2.8rem, 16vw, 4.2rem); }
-  .hero-the, .hero-cuisine { font-size: 0.6rem; letter-spacing: 0.5em; }
+  /* Hero text: tighter clamp so it fits on small screens without overflow */
+  .hero-sketchy { font-size: clamp(2.4rem, 13vw, 3.8rem); }
+  .hero-the { font-size: clamp(0.52rem, 2vw, 0.68rem); letter-spacing: 0.5em; }
+  .hero-cuisine { font-size: clamp(0.52rem, 2vw, 0.68rem); letter-spacing: 0.55em; }
   .hero-corner { width: 52px; height: 52px; }
   .hero-actions { margin-top: 22px; gap: 10px; }
   .btn-primary, .btn-outline { padding: 14px 22px; font-size: 0.7rem; }
