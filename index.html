@@ -187,6 +187,7 @@ nav.scrolled {
   transition: opacity 1.5s ease-in-out;
   transform: scale(1.04);
   animation: heroZoom 8s ease-in-out infinite alternate;
+  will-change: transform, opacity;
 }
 .hero-slide.active { opacity: 1; }
 @keyframes heroZoom {
@@ -415,6 +416,7 @@ section { padding: 110px 60px; }
   position: relative;
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 60px), 0 100%);
   margin-bottom: -60px;
+  contain: layout style;
 }
 /* White ornamental rule at top */
 #menu::before {
@@ -708,6 +710,7 @@ section { padding: 110px 60px; }
   width: 100%; height: 100%;
   object-fit: cover;
   z-index: 0;
+  will-change: transform;
 }
 .food-reel-overlay {
   position: absolute; inset: 0; z-index: 2;
@@ -769,6 +772,7 @@ section { padding: 110px 60px; }
   width: max-content;
   animation: marqueeScroll 28s linear infinite;
   will-change: transform;
+  transform: translateZ(0);
 }
 #celebrate-marquee:hover .marquee-track { animation-play-state: paused; }
 @keyframes marqueeScroll {
@@ -963,6 +967,7 @@ section { padding: 110px 60px; }
   background-size: cover; background-position: center;
   transition: transform 7s ease;
   will-change: transform;
+  transform: translateZ(0);
 }
 .celeb-card:hover .celeb-card-media { transform: scale(1.08); }
 
@@ -6724,7 +6729,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ── Sidebar active highlight on scroll ────────── */
-window.addEventListener('scroll', updateSidebar, { passive: true });
+let _sidebarRaf = false;
+window.addEventListener('scroll', function() {
+  if (_sidebarRaf) return;
+  _sidebarRaf = true;
+  requestAnimationFrame(function() {
+    _sidebarRaf = false;
+    updateSidebar();
+  });
+}, { passive: true });
 function updateSidebar() {
   const activePanel = document.querySelector('.menu-panel.active');
   if (!activePanel) return;
@@ -7056,16 +7069,22 @@ function triggerConfetti() {
   const cards = document.querySelectorAll('.celeb-card:not(.celeb-card--portrait)');
   if (!cards.length) return;
 
+  let rafPending = false;
   function onScroll() {
-    const wH = window.innerHeight;
-    cards.forEach((card, i) => {
-      const rect = card.getBoundingClientRect();
-      if (rect.bottom < 0 || rect.top > wH) return;
-      const prog = (wH - rect.top) / (wH + rect.height);
-      const dir = i % 2 === 0 ? 1 : -1;
-      const shift = (prog - 0.5) * 28 * dir;
-      const media = card.querySelector('.celeb-card-media');
-      if (media) media.style.transform = `translateY(${shift}px) scale(1.08)`;
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(function() {
+      rafPending = false;
+      const wH = window.innerHeight;
+      cards.forEach((card, i) => {
+        const rect = card.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > wH) return;
+        const prog = (wH - rect.top) / (wH + rect.height);
+        const dir = i % 2 === 0 ? 1 : -1;
+        const shift = (prog - 0.5) * 28 * dir;
+        const media = card.querySelector('.celeb-card-media');
+        if (media) media.style.transform = `translateY(${shift}px) scale(1.08)`;
+      });
     });
   }
 
