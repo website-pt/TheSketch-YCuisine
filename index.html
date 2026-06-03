@@ -10,8 +10,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
-<!-- Performance: tell browser not to block render on video files -->
-<link rel="dns-prefetch" href="./">
+<!-- Performance: preload the first hero image so it appears instantly -->
+<link rel="preload" as="image" href="./hero-1.jpg">
+<!-- Prefetch remaining hero slides in background after page loads -->
+<link rel="prefetch" href="./hero-2.jpg">
+<link rel="prefetch" href="./hero-3.jpg">
+<link rel="prefetch" href="./hero-4.jpg">
+<link rel="prefetch" href="./hero-5.jpg">
 
 <style>
 /* ══════════════════════════════════════════════════════
@@ -4401,7 +4406,7 @@ footer .logo-watermark {
         <img
           src="./about-1.jpg"
           alt="The Sketch-Y Cuisine — Our Story"
-          loading="lazy"
+          loading="lazy" decoding="async"
           style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s ease;"
           onmouseover="this.style.transform='scale(1.04)'"
           onmouseout="this.style.transform='scale(1)'"
@@ -4421,7 +4426,7 @@ footer .logo-watermark {
         <img
           src="./about-2.jpg"
           alt="The Sketch-Y Cuisine — A Dream Turned Reality"
-          loading="lazy"
+          loading="lazy" decoding="async"
           style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s ease;"
           onmouseover="this.style.transform='scale(1.05)'"
           onmouseout="this.style.transform='scale(1)'"
@@ -4539,7 +4544,7 @@ footer .logo-watermark {
       <div class="chef-duo-wrap">
       <div class="menu-hero-feature">
         <div class="mhf-img-wrap">
-          <img src="./sig-starters-hero.jpg" alt="Gourmet Stack" class="mhf-img">
+          <img src="./sig-starters-hero.jpg" alt="Gourmet Stack" class="mhf-img" loading="lazy" decoding="async">
           <div class="mhf-badge">Chef's Favourite</div>
         </div>
         <div class="mhf-body">
@@ -4552,7 +4557,7 @@ footer .logo-watermark {
       <div class="menu-float-row">
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-honey-chili-potato.jpg" alt="Honey Chili Potato" class="menu-float-img">
+            <img src="./sig-honey-chili-potato.jpg" alt="Honey Chili Potato" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Most Loved</span>
@@ -4562,7 +4567,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-cheesy-garlic-bread.jpg" alt="Cheesy Pull Apart Garlic Bread" class="menu-float-img">
+            <img src="./sig-cheesy-garlic-bread.jpg" alt="Cheesy Pull Apart Garlic Bread" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Trending</span>
@@ -4572,7 +4577,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-crispy-corn.jpg" alt="Crispy Corn" class="menu-float-img">
+            <img src="./sig-crispy-corn.jpg" alt="Crispy Corn" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Popular</span>
@@ -4595,7 +4600,7 @@ footer .logo-watermark {
       <div class="chef-duo-wrap">
       <div class="menu-hero-feature">
         <div class="mhf-img-wrap">
-          <img src="./sig-mains-hero.jpg" alt="Kofta-e-Khaas" class="mhf-img">
+          <img src="./sig-mains-hero.jpg" alt="Kofta-e-Khaas" class="mhf-img" loading="lazy" decoding="async">
           <div class="mhf-badge">Chef Special</div>
         </div>
         <div class="mhf-body">
@@ -4608,7 +4613,7 @@ footer .logo-watermark {
       <div class="menu-float-row">
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-dal-maharani.jpg" alt="Dal Maharani" class="menu-float-img">
+            <img src="./sig-dal-maharani.jpg" alt="Dal Maharani" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Most Loved</span>
@@ -4618,7 +4623,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-kesari-paneer.jpg" alt="Kesari Paneer" class="menu-float-img">
+            <img src="./sig-kesari-paneer.jpg" alt="Kesari Paneer" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Chef Special</span>
@@ -4628,7 +4633,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-nawabi-malai-kofta.jpg" alt="Nawabi Malai Kofta" class="menu-float-img">
+            <img src="./sig-nawabi-malai-kofta.jpg" alt="Nawabi Malai Kofta" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Popular</span>
@@ -4651,7 +4656,7 @@ footer .logo-watermark {
       <div class="chef-duo-wrap">
       <div class="menu-hero-feature">
         <div class="mhf-img-wrap">
-          <img src="./sig-pasta-hero.jpg" alt="Exotic Veggie Lasagna" class="mhf-img">
+          <img src="./sig-pasta-hero.jpg" alt="Exotic Veggie Lasagna" class="mhf-img" loading="lazy" decoding="async">
           <div class="mhf-badge">Chef's Pick</div>
         </div>
         <div class="mhf-body">
@@ -4664,7 +4669,7 @@ footer .logo-watermark {
       <div class="menu-float-row">
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-pasta.jpg" alt="Sketchy's Pesto Pasta" class="menu-float-img">
+            <img src="./sig-pasta.jpg" alt="Sketchy's Pesto Pasta" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Most Loved</span>
@@ -4674,7 +4679,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-mac-n-cheese.jpg" alt="Mac n Cheese" class="menu-float-img">
+            <img src="./sig-mac-n-cheese.jpg" alt="Mac n Cheese" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Trending</span>
@@ -4684,7 +4689,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-basil-pesto-pasta.jpg" alt="Basil Pesto Pasta" class="menu-float-img">
+            <img src="./sig-basil-pesto-pasta.jpg" alt="Basil Pesto Pasta" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Fresh</span>
@@ -4714,7 +4719,7 @@ footer .logo-watermark {
       <div class="chef-duo-wrap">
       <div class="menu-hero-feature">
         <div class="mhf-img-wrap">
-          <img src="./sig-pizza-hero.jpg" alt="The Sketch-Y Pizza" class="mhf-img">
+          <img src="./sig-pizza-hero.jpg" alt="The Sketch-Y Pizza" class="mhf-img" loading="lazy" decoding="async">
           <div class="mhf-badge">Our Signature</div>
         </div>
         <div class="mhf-body">
@@ -4727,7 +4732,7 @@ footer .logo-watermark {
       <div class="menu-float-row">
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-cherry-pizza.jpg" alt="Spicy Peri-Peri Pizza" class="menu-float-img">
+            <img src="./sig-cherry-pizza.jpg" alt="Spicy Peri-Peri Pizza" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Most Loved</span>
@@ -4737,7 +4742,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-paneer-tikka-pizza.jpg" alt="Paneer Tikka Pizza" class="menu-float-img">
+            <img src="./sig-paneer-tikka-pizza.jpg" alt="Paneer Tikka Pizza" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Desi Twist</span>
@@ -4747,7 +4752,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-quattro-pizza.jpg" alt="Quattro Indulgence" class="menu-float-img">
+            <img src="./sig-quattro-pizza.jpg" alt="Quattro Indulgence" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">4-Cheese</span>
@@ -4781,7 +4786,7 @@ footer .logo-watermark {
       <div class="chef-duo-wrap">
       <div class="menu-hero-feature">
         <div class="mhf-img-wrap">
-          <img src="./sig-asian-hero.jpg" alt="Thai Style Dumplings" class="mhf-img">
+          <img src="./sig-asian-hero.jpg" alt="Thai Style Dumplings" class="mhf-img" loading="lazy" decoding="async">
           <div class="mhf-badge">Fan Favourite</div>
         </div>
         <div class="mhf-body">
@@ -4794,7 +4799,7 @@ footer .logo-watermark {
       <div class="menu-float-row">
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-hakka-noodles.jpg" alt="Pad Thai Noodles" class="menu-float-img">
+            <img src="./sig-hakka-noodles.jpg" alt="Pad Thai Noodles" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Most Loved</span>
@@ -4804,7 +4809,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-red-thai-curry.jpg" alt="Red Thai Curry" class="menu-float-img">
+            <img src="./sig-red-thai-curry.jpg" alt="Red Thai Curry" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Trending</span>
@@ -4814,7 +4819,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-korean-corn-ramen.jpg" alt="Korean Corn Cheese Ramen" class="menu-float-img">
+            <img src="./sig-korean-corn-ramen.jpg" alt="Korean Corn Cheese Ramen" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">New &amp; Hot</span>
@@ -4848,7 +4853,7 @@ footer .logo-watermark {
       <div class="chef-duo-wrap">
       <div class="menu-hero-feature">
         <div class="mhf-img-wrap">
-          <img src="./sig-beverages-hero.jpg" alt="Cappuccino" class="mhf-img">
+          <img src="./sig-beverages-hero.jpg" alt="Cappuccino" class="mhf-img" loading="lazy" decoding="async">
           <div class="mhf-badge">House Special</div>
         </div>
         <div class="mhf-body">
@@ -4861,7 +4866,7 @@ footer .logo-watermark {
       <div class="menu-float-row">
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-blue.jpg" alt="Mojito" class="menu-float-img">
+            <img src="./sig-blue.jpg" alt="Mojito" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Most Loved</span>
@@ -4871,7 +4876,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-lotus-biscoff-shake.jpg" alt="Lotus Biscoff Shake" class="menu-float-img">
+            <img src="./sig-lotus-biscoff-shake.jpg" alt="Lotus Biscoff Shake" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Fan Favourite</span>
@@ -4881,7 +4886,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-vietnamese-cold-brew.jpg" alt="Vietnamese Cold Brew" class="menu-float-img">
+            <img src="./sig-vietnamese-cold-brew.jpg" alt="Vietnamese Cold Brew" class="menu-float-img" loading="lazy" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Coffee</span>
@@ -4976,7 +4981,7 @@ footer .logo-watermark {
     <div class="insta-card insta-card--tall">
       <div class="insta-card-img-wrap">
         <img class="insta-card-img" src="./insta-memory-1.jpg" alt="Guest photo at The Sketch-Y Cuisine"
-             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'">
+             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'" loading="lazy" decoding="async">
         <!-- Elegant placeholder when image is missing -->
         <div class="insta-card-placeholder" style="display:none;">
           <div class="icp-icon">
@@ -5019,7 +5024,7 @@ footer .logo-watermark {
     <div class="insta-card">
       <div class="insta-card-img-wrap">
         <img class="insta-card-img" src="./insta-memory-2.jpg" alt="Guest photo at The Sketch-Y Cuisine"
-             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'">
+             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'" loading="lazy" decoding="async">
         <div class="insta-card-placeholder" style="display:none;">
           <div class="icp-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></div>
           <p class="icp-text">More Memories<br>Coming Soon</p>
@@ -5055,7 +5060,7 @@ footer .logo-watermark {
           </video>
         -->
         <!-- <img class="insta-card-img" src="./insta-memory-reel-1.jpg" alt="Guest reel at The Sketch-Y Cuisine"
-             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'">
+             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'" loading="lazy" decoding="async">
         <div class="insta-card-placeholder" style="display:none;">
           <div class="icp-icon">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -5095,7 +5100,7 @@ footer .logo-watermark {
     <div class="insta-card">
       <div class="insta-card-img-wrap">
         <img class="insta-card-img" src="./insta-memory-4.jpg" alt="Guest photo at The Sketch-Y Cuisine"
-             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'">
+             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'" loading="lazy" decoding="async">
         <div class="insta-card-placeholder" style="display:none;"><div class="icp-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></div><p class="icp-text">More Memories<br>Coming Soon</p></div>
         <div class="insta-card-overlay"></div>
         <div class="insta-card-topbar"><span class="insta-type-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/></svg> Photo</span></div>
@@ -5118,7 +5123,7 @@ footer .logo-watermark {
     <div class="insta-card insta-card--wide">
       <div class="insta-card-img-wrap">
         <img class="insta-card-img" src="./insta-memory-5.jpg" alt="Guest photo at The Sketch-Y Cuisine"
-             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'">
+             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'" loading="lazy" decoding="async">
         <div class="insta-card-placeholder" style="display:none;"><div class="icp-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></div><p class="icp-text">More Memories<br>Coming Soon</p></div>
         <div class="insta-card-overlay"></div>
         <div class="insta-card-topbar"><span class="insta-type-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/></svg> Photo</span></div>
@@ -5141,7 +5146,7 @@ footer .logo-watermark {
     <div class="insta-card insta-card--tall">
       <div class="insta-card-img-wrap">
         <img class="insta-card-img" src="./insta-memory-6.jpg" alt="Guest photo at The Sketch-Y Cuisine"
-             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'">
+             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'" loading="lazy" decoding="async">
         <div class="insta-card-placeholder" style="display:none;"><div class="icp-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></div><p class="icp-text">More Memories<br>Coming Soon</p></div>
         <div class="insta-card-overlay"></div>
         <div class="insta-card-topbar"><span class="insta-type-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/></svg> Photo</span></div>
@@ -5164,7 +5169,7 @@ footer .logo-watermark {
     <div class="insta-card">
       <div class="insta-card-img-wrap">
         <img class="insta-card-img" src="./insta-memory-7.jpg" alt="Guest photo at The Sketch-Y Cuisine"
-             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'">
+             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'" loading="lazy" decoding="async">
         <div class="insta-card-placeholder" style="display:none;"><div class="icp-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></div><p class="icp-text">More Memories<br>Coming Soon</p></div>
         <div class="insta-card-overlay"></div>
         <div class="insta-card-topbar"><span class="insta-type-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/></svg> Photo</span></div>
@@ -5193,7 +5198,7 @@ footer .logo-watermark {
           </video>
         -->
         <!-- <img class="insta-card-img" src="./insta-memory-reel-2.jpg" alt="Guest reel at The Sketch-Y Cuisine"
-             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'">
+             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'" loading="lazy" decoding="async">
         <div class="insta-card-placeholder" style="display:none;">
           <div class="icp-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M15 10l4.553-2.553A1 1 0 0121 8.382v7.236a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg></div>
           <p class="icp-text">Reel Coming<br>Soon</p>
@@ -5222,7 +5227,7 @@ footer .logo-watermark {
     <div class="insta-card">
       <div class="insta-card-img-wrap">
         <img class="insta-card-img" src="./insta-memory-9.jpg" alt="Guest photo at The Sketch-Y Cuisine"
-             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'">
+             onerror="this.style.display='none';this.parentElement.querySelector('.insta-card-placeholder').style.display='flex'" loading="lazy" decoding="async">
         <div class="insta-card-placeholder" style="display:none;"><div class="icp-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></div><p class="icp-text">More Memories<br>Coming Soon</p></div>
         <div class="insta-card-overlay"></div>
         <div class="insta-card-topbar"><span class="insta-type-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/></svg> Photo</span></div>
@@ -5921,7 +5926,7 @@ footer .logo-watermark {
       <div style="width:100%;overflow:hidden;position:relative;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;">
         <img src="./neha-birthday.jpg" alt="Neha Birthday Celebration"
           style="width:100%;height:auto;display:block;object-fit:contain;"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy" decoding="async">
         <div style="display:none;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,0.2);padding:60px 20px;">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 15l-5-5L5 21"/></svg>
           <span style="font-family:'ITC Avant Garde Gothic Pro','Avant Garde','Jost',sans-serif;font-size:0.48rem;letter-spacing:0.28em;">neha-birthday.jpg</span>
@@ -5949,7 +5954,7 @@ footer .logo-watermark {
       <div style="width:100%;overflow:hidden;position:relative;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;">
         <img src="./muskan-parwani-review.jpg" alt="Muskan Parwani — Cheesy Penne Pasta with Garlic Bread"
           style="width:100%;height:auto;display:block;object-fit:contain;"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy" decoding="async">
         <div style="display:none;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,0.2);padding:60px 20px;">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 15l-5-5L5 21"/></svg>
           <span style="font-family:'ITC Avant Garde Gothic Pro','Avant Garde','Jost',sans-serif;font-size:0.48rem;letter-spacing:0.28em;">muskan-parwani-review.jpg</span>
@@ -6533,13 +6538,21 @@ const GALLERY_IMAGES = [
 })();
 
 // Build slides + dots dynamically
+// PERFORMANCE: Only set background-image on the first (active) slide immediately.
+// The remaining slides get their src set just-in-time before they become active,
+// so the browser only fetches hero-1.jpg at page load (already preloaded in <head>).
 (function buildSlideshow() {
   const slidesEl = document.getElementById('heroSlides');
   const dotsEl   = document.getElementById('slideDots');
   HERO_IMAGES.forEach((url, i) => {
     const slide = document.createElement('div');
     slide.className = 'hero-slide' + (i === 0 ? ' active' : '');
-    slide.style.backgroundImage = `url('${url}')`;
+    // Only load the first slide immediately; store others as data-src
+    if (i === 0) {
+      slide.style.backgroundImage = `url('${url}')`;
+    } else {
+      slide.dataset.bg = url; // defer until needed
+    }
     slidesEl.appendChild(slide);
 
     const dot = document.createElement('div');
@@ -6558,7 +6571,13 @@ function goToSlide(n) {
   slides[currentSlide].classList.remove('active');
   dots[currentSlide].classList.remove('active');
   currentSlide = (n + slides.length) % slides.length;
-  slides[currentSlide].classList.add('active');
+  // PERFORMANCE: load deferred slides just-in-time before showing them
+  const nextSlide = slides[currentSlide];
+  if (nextSlide.dataset.bg) {
+    nextSlide.style.backgroundImage = `url('${nextSlide.dataset.bg}')`;
+    delete nextSlide.dataset.bg;
+  }
+  nextSlide.classList.add('active');
   dots[currentSlide].classList.add('active');
   resetTimer();
 }
