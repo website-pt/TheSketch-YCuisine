@@ -3012,14 +3012,14 @@ function probeImageNum(folder, n) {
 }
 
 /* ── Fast folder loader: probes numbers in parallel batches ──
-   Batch size = 6: fires 6 number-probes at once, waits for all,
+   Batch size = 12: fires 12 number-probes at once, waits for all,
    then moves to next batch. Stops after MISS_LIMIT consecutive
    null results (meaning no more images exist). This means for a
-   folder with 8 images we do 2 batches (1-6, 7-12) instead of
+   folder with 8 images we do 1 batch (1-12) instead of
    firing 300 serial requests. */
 function loadValidImages(folder) {
-  const BATCH = 6;          // parallel probes per round
-  const MISS_LIMIT = 3;     // stop after this many consecutive misses
+  const BATCH = 12;         // parallel probes per round (doubled for speed)
+  const MISS_LIMIT = 2;     // stop after this many consecutive misses (faster cutoff)
 
   return new Promise(async resolve => {
     const valid = [];
@@ -3118,27 +3118,19 @@ const _phase1 = Promise.all(
 /* Phase 2: load remaining food categories in parallel batches */
 const PHASE2_FOLDERS = ['appetizers','pasta','pizza','asian','sushi','sizzlers','tandoor','mains','rice','breads','soups','salads','desserts'];
 
-const _phase2 = _phase1.then(() => {
-  /* Load in 3 parallel batches to avoid saturating connections */
-  const BATCH_SIZE = 4;
-  const batches = [];
-  for (let i = 0; i < PHASE2_FOLDERS.length; i += BATCH_SIZE) {
-    batches.push(PHASE2_FOLDERS.slice(i, i + BATCH_SIZE));
-  }
-
-  return batches.reduce((chain, batch) =>
-    chain.then(() =>
-      Promise.all(batch.map(folder =>
-        loadValidImages(folder).then(paths => {
-          IMAGE_POOLS[folder] = paths;
-          /* Build this category's galleries as soon as its images are ready */
-          if (typeof buildShowcaseBanner === 'function') buildShowcaseBanner(folder);
-          if (typeof buildMasonryWall === 'function') buildMasonryWall(folder);
-        })
-      ))
-    ), Promise.resolve()
-  );
-});
+/* Phase 2: load ALL remaining food categories fully in parallel */
+const _phase2 = _phase1.then(() =>
+  Promise.all(
+    PHASE2_FOLDERS.map(folder =>
+      loadValidImages(folder).then(paths => {
+        IMAGE_POOLS[folder] = paths;
+        /* Build this category's galleries as soon as its images are ready */
+        if (typeof buildShowcaseBanner === 'function') buildShowcaseBanner(folder);
+        if (typeof buildMasonryWall === 'function') buildMasonryWall(folder);
+      })
+    )
+  )
+);
 
 /* Phase 3: load global/fallback in idle time */
 const _phase3 = _phase2.then(() => {
