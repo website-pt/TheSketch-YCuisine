@@ -11,12 +11,27 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
 <!-- Performance: preload the first hero image so it appears instantly -->
-<link rel="preload" as="image" href="./hero-1.jpg">
+<link rel="preload" as="image" href="./hero-1.jpg" fetchpriority="high">
 <!-- Prefetch remaining hero slides in background after page loads -->
 <link rel="prefetch" href="./hero-2.jpg">
 <link rel="prefetch" href="./hero-3.jpg">
 <link rel="prefetch" href="./hero-4.jpg">
 <link rel="prefetch" href="./hero-5.jpg">
+<!-- Preload key above-the-fold signature menu images for fast first paint -->
+<link rel="preload" as="image" href="./sig-starters-hero.jpg">
+<link rel="preload" as="image" href="./sig-mains-hero.jpg">
+<!-- Prefetch the other signature hero images so switching tabs is instant -->
+<link rel="prefetch" href="./sig-pasta-hero.jpg">
+<link rel="prefetch" href="./sig-pizza-hero.jpg">
+<link rel="prefetch" href="./sig-asian-hero.jpg">
+<link rel="prefetch" href="./sig-beverages-hero.jpg">
+<!-- Prefetch floating menu card images (starters panel visible by default) -->
+<link rel="prefetch" href="./sig-honey-chili-potato.jpg">
+<link rel="prefetch" href="./sig-cheesy-garlic-bread.jpg">
+<link rel="prefetch" href="./sig-crispy-corn.jpg">
+<link rel="prefetch" href="./sig-dal-maharani.jpg">
+<link rel="prefetch" href="./sig-kesari-paneer.jpg">
+<link rel="prefetch" href="./sig-nawabi-malai-kofta.jpg">
 
 <style>
 /* ══════════════════════════════════════════════════════
@@ -4544,7 +4559,7 @@ footer .logo-watermark {
       <div class="chef-duo-wrap">
       <div class="menu-hero-feature">
         <div class="mhf-img-wrap">
-          <img src="./sig-starters-hero.jpg" alt="Gourmet Stack" class="mhf-img" loading="lazy" decoding="async">
+          <img src="./sig-starters-hero.jpg" alt="Gourmet Stack" class="mhf-img" loading="eager" fetchpriority="high" decoding="async">
           <div class="mhf-badge">Chef's Favourite</div>
         </div>
         <div class="mhf-body">
@@ -4557,7 +4572,7 @@ footer .logo-watermark {
       <div class="menu-float-row">
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-honey-chili-potato.jpg" alt="Honey Chili Potato" class="menu-float-img" loading="lazy" decoding="async">
+            <img src="./sig-honey-chili-potato.jpg" alt="Honey Chili Potato" class="menu-float-img" loading="eager" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Most Loved</span>
@@ -4567,7 +4582,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-cheesy-garlic-bread.jpg" alt="Cheesy Pull Apart Garlic Bread" class="menu-float-img" loading="lazy" decoding="async">
+            <img src="./sig-cheesy-garlic-bread.jpg" alt="Cheesy Pull Apart Garlic Bread" class="menu-float-img" loading="eager" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Trending</span>
@@ -4577,7 +4592,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-crispy-corn.jpg" alt="Crispy Corn" class="menu-float-img" loading="lazy" decoding="async">
+            <img src="./sig-crispy-corn.jpg" alt="Crispy Corn" class="menu-float-img" loading="eager" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Popular</span>
@@ -4600,7 +4615,7 @@ footer .logo-watermark {
       <div class="chef-duo-wrap">
       <div class="menu-hero-feature">
         <div class="mhf-img-wrap">
-          <img src="./sig-mains-hero.jpg" alt="Kofta-e-Khaas" class="mhf-img" loading="lazy" decoding="async">
+          <img src="./sig-mains-hero.jpg" alt="Kofta-e-Khaas" class="mhf-img" loading="eager" fetchpriority="high" decoding="async">
           <div class="mhf-badge">Chef Special</div>
         </div>
         <div class="mhf-body">
@@ -4613,7 +4628,7 @@ footer .logo-watermark {
       <div class="menu-float-row">
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-dal-maharani.jpg" alt="Dal Maharani" class="menu-float-img" loading="lazy" decoding="async">
+            <img src="./sig-dal-maharani.jpg" alt="Dal Maharani" class="menu-float-img" loading="eager" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Most Loved</span>
@@ -4623,7 +4638,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-kesari-paneer.jpg" alt="Kesari Paneer" class="menu-float-img" loading="lazy" decoding="async">
+            <img src="./sig-kesari-paneer.jpg" alt="Kesari Paneer" class="menu-float-img" loading="eager" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Chef Special</span>
@@ -4633,7 +4648,7 @@ footer .logo-watermark {
         </div>
         <div class="menu-float-card">
           <div class="menu-float-img-wrap">
-            <img src="./sig-nawabi-malai-kofta.jpg" alt="Nawabi Malai Kofta" class="menu-float-img" loading="lazy" decoding="async">
+            <img src="./sig-nawabi-malai-kofta.jpg" alt="Nawabi Malai Kofta" class="menu-float-img" loading="eager" decoding="async">
           </div>
           <div class="menu-float-body">
             <span class="menu-float-tag">Popular</span>
@@ -7489,7 +7504,7 @@ function triggerConfetti() {
           io.unobserve(entry.target);
         }
       });
-    }, { rootMargin: '200px 0px' });   // start loading 200 px before entering view
+    }, { rootMargin: '600px 0px' });   // start loading 600 px before entering view
 
     document.querySelectorAll('video[data-lazy-video]').forEach(function (v) {
       io.observe(v);
