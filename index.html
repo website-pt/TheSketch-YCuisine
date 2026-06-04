@@ -4365,14 +4365,15 @@ footer .logo-watermark {
     <span class="orn-line"></span>
   </div>
 
-  <p class="hero-tagline">Where food creates memories, not just meals.</p>
+  <p class="hero-tagline">Where lines meet luxury, and food creates memories, not just meals.</p>
 
   <!-- Pure Vegetarian Icon -->
-  <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:center;margin-top:20px;opacity:0;animation:fadeUp 1s 0.95s forwards;">
+  <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px;opacity:0;animation:fadeUp 1s 0.95s forwards;">
     <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 6px rgba(76,175,80,0.7));">
       <rect x="2" y="2" width="28" height="28" rx="4" ry="4" fill="rgba(0,0,0,0.55)" stroke="#4caf50" stroke-width="2.2"/>
       <circle cx="16" cy="16" r="8" fill="#4caf50"/>
     </svg>
+    <span style="color:#4caf50;font-family:'ITC Avant Garde Gothic Pro','Avant Garde','Jost',sans-serif;font-size:0.78rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:500;text-shadow:0 0 10px rgba(76,175,80,0.6);">100% Pure &nbsp;·&nbsp; 100% Veg</span>
   </div>
 
   <div class="hero-actions">
@@ -7497,44 +7498,57 @@ function triggerConfetti() {
 </script>
 
 <!-- ══════════════════════════════════════════════════════
-     PERFORMANCE: Lazy-load videos — only fetch & play each
-     video when it scrolls into the viewport (±200 px margin).
-     Keeps initial page load fast on GitHub Pages.
-     Nothing visual or structural is changed.
+     VIDEO LOADER — Aggressive preload so videos are ready
+     the instant a user scrolls to them. All videos start
+     fetching immediately on page load; playback is triggered
+     as soon as each video enters the viewport.
 ══════════════════════════════════════════════════════ -->
 <script>
 (function () {
   'use strict';
 
-  function loadVideo(video) {
+  function startVideo(video) {
     if (video.dataset.lazyLoaded) return;
     video.dataset.lazyLoaded = '1';
-    // preload="none" already set; calling load() starts the fetch.
     video.load();
-    // Play after fetch begins (browser may need a short moment)
-    video.play().catch(function () { /* autoplay policy — silent */ });
+    var playAttempt = video.play();
+    if (playAttempt !== undefined) {
+      playAttempt.catch(function () {
+        /* autoplay policy — retry once after 800ms */
+        setTimeout(function () {
+          video.play().catch(function () {});
+        }, 800);
+      });
+    }
   }
 
+  /* ── Step 1: immediately set preload="auto" on every lazy video
+     so the browser starts buffering them right away in the background ── */
+  document.querySelectorAll('video[data-lazy-video]').forEach(function (v) {
+    v.preload = 'auto';
+  });
+
+  /* ── Step 2: use a very large rootMargin so playback kicks in
+     well before the video is visible (essentially the whole page height) ── */
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          loadVideo(entry.target);
+          startVideo(entry.target);
           io.unobserve(entry.target);
         }
       });
-    }, { rootMargin: '600px 0px' });   // start loading 600 px before entering view
+    }, { rootMargin: '9999px 0px' }); /* trigger for every video immediately */
 
     document.querySelectorAll('video[data-lazy-video]').forEach(function (v) {
       io.observe(v);
     });
   } else {
-    // Fallback for very old browsers — load everything immediately
-    document.querySelectorAll('video[data-lazy-video]').forEach(loadVideo);
+    document.querySelectorAll('video[data-lazy-video]').forEach(startVideo);
   }
 })();
 </script>
-<!-- ══ END LAZY VIDEO LOADER ══ -->
+<!-- ══ END VIDEO LOADER ══ -->
 
 </body>
 </html>
