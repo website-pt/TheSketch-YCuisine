@@ -969,7 +969,7 @@ section { padding: 110px 60px; }
   background-size: cover; background-position: center;
   transition: transform 7s ease;
   will-change: transform;
-  transform: translateZ(0);
+  transform: translate3d(0,0,0);
 }
 .celeb-card:hover .celeb-card-media { transform: scale(1.08); }
 
@@ -1014,9 +1014,7 @@ section { padding: 110px 60px; }
 /* floating event tag */
 .celeb-event-tag {
   display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(200,169,110,0.18);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(200,169,110,0.28);
   border: 1px solid rgba(200,169,110,0.35);
   border-radius: 50px;
   padding: 5px 14px;
@@ -1059,9 +1057,7 @@ section { padding: 110px 60px; }
   display: flex; align-items: center; gap: 7px;
 }
 .celeb-top-badge {
-  background: rgba(5,5,5,0.72);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(5,5,5,0.82);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 50px;
   padding: 4px 13px;
@@ -1081,9 +1077,7 @@ section { padding: 110px 60px; }
   transform: translate(-50%, -50%);
   z-index: 4;
   width: 54px; height: 54px; border-radius: 50%;
-  background: rgba(200,169,110,0.18);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(200,169,110,0.28);
   border: 1.5px solid rgba(200,169,110,0.5);
   display: flex; align-items: center; justify-content: center;
   opacity: 0; transition: opacity 0.35s, transform 0.35s;
@@ -6863,6 +6857,17 @@ function toggleReel() {
   obs.observe(grid);
 })();
 
+/* ── Pause grain animation when memory-wall is off-screen ── */
+(function pauseGrainWhenHidden() {
+  const wall = document.getElementById('memory-wall');
+  const grain = wall && wall.querySelector('.mw-grain-layer');
+  if (!wall || !grain) return;
+  const io = new IntersectionObserver(function(entries) {
+    grain.style.animationPlayState = entries[0].isIntersecting ? 'running' : 'paused';
+  }, { rootMargin: '100px 0px' });
+  io.observe(wall);
+})();
+
 /* ── Signature Picks Tab Switching ──────────────── */
 function switchSigTab(id, btn) {
   document.querySelectorAll('.sig-tab').forEach(b => b.classList.remove('active'));
@@ -6910,8 +6915,9 @@ function toggleChefExpand(panelId, btn) {
 /* ── Ambient light particles ───────────────────── */
 (function initCelebParticles() {
   const layer = document.getElementById('celebParticles');
-  if (!layer) return;
-  for (let i = 0; i < 22; i++) {
+  const section = document.getElementById('celebrate');
+  if (!layer || !section) return;
+  for (let i = 0; i < 10; i++) {
     const p = document.createElement('div');
     p.className = 'celeb-particle';
     const size = 16 + Math.random() * 70;
@@ -6925,6 +6931,14 @@ function toggleChefExpand(panelId, btn) {
     ].join(';');
     layer.appendChild(p);
   }
+  // Pause particle animations when section is off-screen
+  const io = new IntersectionObserver(function(entries) {
+    layer.style.animationPlayState = entries[0].isIntersecting ? '' : 'paused';
+    Array.from(layer.children).forEach(function(p) {
+      p.style.animationPlayState = entries[0].isIntersecting ? '' : 'paused';
+    });
+  }, { rootMargin: '100px 0px' });
+  io.observe(section);
 })();
 
 /* ── Confetti burst ─────────────────────────────── */
@@ -7073,27 +7087,37 @@ function triggerConfetti() {
 
 (function mosaicParallax() {
   const cards = document.querySelectorAll('.celeb-card:not(.celeb-card--portrait)');
-  if (!cards.length) return;
+  const section = document.getElementById('celebrate');
+  if (!cards.length || !section) return;
 
   let rafPending = false;
+  let sectionVisible = false;
+  let cachedWH = window.innerHeight;
+
   function onScroll() {
-    if (rafPending) return;
+    if (!sectionVisible || rafPending) return;
     rafPending = true;
     requestAnimationFrame(function() {
       rafPending = false;
-      const wH = window.innerHeight;
       cards.forEach((card, i) => {
         const rect = card.getBoundingClientRect();
-        if (rect.bottom < 0 || rect.top > wH) return;
-        const prog = (wH - rect.top) / (wH + rect.height);
+        if (rect.bottom < 0 || rect.top > cachedWH) return;
+        const prog = (cachedWH - rect.top) / (cachedWH + rect.height);
         const dir = i % 2 === 0 ? 1 : -1;
         const shift = (prog - 0.5) * 28 * dir;
         const media = card.querySelector('.celeb-card-media');
-        if (media) media.style.transform = `translateY(${shift}px) scale(1.08)`;
+        if (media) media.style.transform = `translate3d(0,${shift}px,0) scale(1.08)`;
       });
     });
   }
 
+  // Only run scroll handler when celebrate section is in view
+  const io = new IntersectionObserver(function(entries) {
+    sectionVisible = entries[0].isIntersecting;
+  }, { rootMargin: '200px 0px' });
+  io.observe(section);
+
+  window.addEventListener('resize', function() { cachedWH = window.innerHeight; }, { passive: true });
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 })();
